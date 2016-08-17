@@ -1,8 +1,8 @@
 {
-  "name": "eventful",
+  "name": "podium",
   "description": "Node compatible event emitter with extra features",
-  "version": "0.2.0",
-  "repository": "git://github.com/hapijs/eventful",
+  "version": "0.0.0",
+  "repository": "git://github.com/hapijs/podium",
   "main": "lib/index.js",
   "keywords": [
     "emitter",
