@@ -1,0 +1,26 @@
+{
+  "name": "eventful",
+  "description": "Node compatible event emitter with extra features",
+  "version": "0.2.0",
+  "repository": "git://github.com/hapijs/eventful",
+  "main": "lib/index.js",
+  "keywords": [
+    "emitter",
+    "event"
+  ],
+  "engines": {
+    "node": ">=4.0.0"
+  },
+  "dependencies": {
+      "hoek": "4.x.x"
+  },
+  "devDependencies": {
+    "code": "3.x.x",
+    "lab": "11.x.x"
+  },
+  "scripts": {
+    "test": "lab -a code -t 100 -L",
+    "test-cov-html": "lab -r html -o coverage.html -a code -L"
+  },
+  "license": "BSD-3-Clause"
+}
