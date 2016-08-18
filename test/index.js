@@ -73,6 +73,71 @@ describe('Podium', () => {
         done();
     });
 
+    describe('emit()', () => {
+
+        it('invokes all handlers subscribed to an event', (done) => {
+
+            const emitter = new Podium('test');
+            let handled = 0;
+            emitter.on('test', () => {
+
+                handled++;
+            });
+
+            emitter.on('test', () => {
+
+                handled++;
+            });
+
+            emitter.on('test', () => {
+
+                handled++;
+            });
+
+            emitter.emit('test');
+            expect(handled).to.equal(3);
+            done();
+        });
+    });
+
+    describe('on()', () => {
+
+        it('invokes a handler everytime the subscribed event occurs', (done) => {
+
+            const emitter = new Podium('test');
+            let handled = 0;
+            emitter.on('test', () => {
+
+                handled++;
+            });
+
+            emitter.emit('test');
+            emitter.emit('test');
+            emitter.emit('test');
+            expect(handled).to.equal(3);
+            done();
+        });
+    });
+
+    describe('addListener()', () => {
+
+        it('invokes a handler everytime the subscribed event occurs', (done) => {
+
+            const emitter = new Podium('test');
+            let handled = 0;
+            emitter.addListener('test', () => {
+
+                handled++;
+            });
+
+            emitter.emit('test');
+            emitter.emit('test');
+            emitter.emit('test');
+            expect(handled).to.equal(3);
+            done();
+        });
+    });
+
     describe('once()', () => {
 
         it('invokes a handler once', (done) => {
@@ -85,6 +150,55 @@ describe('Podium', () => {
             emitter.emit('test');
 
             expect(counter).to.equal(1);
+            done();
+        });
+    });
+
+    describe('removeListener()', () => {
+
+        it('deletes a single handler from being subscribed to an event', (done) => {
+
+            const emitter = new Podium('test');
+            let handled = 0;
+            const handler = () => {
+
+                handled++;
+            };
+            emitter.addListener('test', handler);
+
+            emitter.emit('test');
+            emitter.removeListener('test', handler);
+            emitter.emit('test');
+            expect(handled).to.equal(1);
+            done();
+        });
+    });
+
+    describe('removeAllListeners()', () => {
+
+        it('deletes all handlers from being subscribed to an event', (done) => {
+
+            const emitter = new Podium('test');
+            let handled = 0;
+            emitter.on('test', () => {
+
+                handled++;
+            });
+
+            emitter.on('test', () => {
+
+                handled++;
+            });
+
+            emitter.on('test', () => {
+
+                handled++;
+            });
+
+            emitter.emit('test');
+            emitter.removeAllListeners('test');
+            emitter.emit('test');
+            expect(handled).to.equal(3);
             done();
         });
     });
