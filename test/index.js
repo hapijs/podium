@@ -43,34 +43,37 @@ describe('Podium', () => {
         emitter.emit('b', 3);
         emitter.emit('d', 4);
         emitter.emit('b', 5);
-        emitter.emit('d', 6);
+        emitter.emit('d', 6, () => {
 
-        emitter.removeListener('b', handler2);
-        emitter.removeListener('a', Hoek.ignore);
-        emitter.removeListener('d', Hoek.ignore);
+            emitter.removeListener('b', handler2);
+            emitter.removeListener('a', Hoek.ignore);
+            emitter.removeListener('d', Hoek.ignore);
 
-        emitter.emit('a', 7);
-        emitter.emit('b', 8);
+            emitter.emit('a', 7);
+            emitter.emit('b', 8, () => {
 
-        emitter.removeAllListeners('a');
-        emitter.removeAllListeners('d');
+                emitter.removeAllListeners('a');
+                emitter.removeAllListeners('d');
 
-        emitter.emit('a', 9);
+                emitter.emit('a', 9, () => {
 
-        expect(updates).to.equal([
-            { a: 1, id: 1 },
-            { a: 1, id: 3 },
-            { a: 1, id: 5 },
-            { a: 2, id: 1 },
-            { a: 2, id: 3 },
-            { a: 2, id: 5 },
-            { b: 3, id: 2 },
-            { b: 5, id: 2 },
-            { a: 7, id: 1 },
-            { a: 7, id: 3 }
-        ]);
+                    expect(updates).to.equal([
+                        { a: 1, id: 1 },
+                        { a: 1, id: 3 },
+                        { a: 1, id: 5 },
+                        { a: 2, id: 1 },
+                        { a: 2, id: 3 },
+                        { a: 2, id: 5 },
+                        { b: 3, id: 2 },
+                        { b: 5, id: 2 },
+                        { a: 7, id: 1 },
+                        { a: 7, id: 3 }
+                    ]);
 
-        done();
+                    done();
+                });
+            });
+        });
     });
 
     describe('emit()', () => {
@@ -156,9 +159,11 @@ describe('Podium', () => {
                 handled++;
             });
 
-            emitter.emit('test');
-            expect(handled).to.equal(3);
-            done();
+            emitter.emit('test', null, () => {
+
+                expect(handled).to.equal(3);
+                done();
+            });
         });
     });
 
@@ -175,9 +180,11 @@ describe('Podium', () => {
 
             emitter.emit('test');
             emitter.emit('test');
-            emitter.emit('test');
-            expect(handled).to.equal(3);
-            done();
+            emitter.emit('test', null, () => {
+
+                expect(handled).to.equal(3);
+                done();
+            });
         });
     });
 
@@ -194,9 +201,11 @@ describe('Podium', () => {
 
             emitter.emit('test');
             emitter.emit('test');
-            emitter.emit('test');
-            expect(handled).to.equal(3);
-            done();
+            emitter.emit('test', null, () => {
+
+                expect(handled).to.equal(3);
+                done();
+            });
         });
     });
 
@@ -209,10 +218,11 @@ describe('Podium', () => {
             emitter.once('test', () => ++counter);
             emitter.emit('test');
             emitter.emit('test');
-            emitter.emit('test');
+            emitter.emit('test', null, () => {
 
-            expect(counter).to.equal(1);
-            done();
+                expect(counter).to.equal(1);
+                done();
+            });
         });
     });
 
@@ -228,11 +238,15 @@ describe('Podium', () => {
             };
             emitter.addListener('test', handler);
 
-            emitter.emit('test');
-            emitter.removeListener('test', handler);
-            emitter.emit('test');
-            expect(handled).to.equal(1);
-            done();
+            emitter.emit('test', null, () => {
+
+                emitter.removeListener('test', handler);
+                emitter.emit('test', null, () => {
+
+                    expect(handled).to.equal(1);
+                    done();
+                });
+            });
         });
     });
 
@@ -257,11 +271,15 @@ describe('Podium', () => {
                 handled++;
             });
 
-            emitter.emit('test');
-            emitter.removeAllListeners('test');
-            emitter.emit('test');
-            expect(handled).to.equal(3);
-            done();
+            emitter.emit('test', null, () => {
+
+                emitter.removeAllListeners('test');
+                emitter.emit('test', null, () => {
+
+                    expect(handled).to.equal(3);
+                    done();
+                });
+            });
         });
     });
 });
