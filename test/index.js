@@ -77,7 +77,7 @@ describe('Podium', () => {
 
         it('invokes all handlers subscribed to an event', (done) => {
 
-            const emitter = new Podium();
+            const emitter = new Podium('test');
             let handled = 0;
             emitter.on('test', () => {
 
@@ -104,7 +104,7 @@ describe('Podium', () => {
 
         it('invokes a handler everytime the subscribed event occurs', (done) => {
 
-            const emitter = new Podium();
+            const emitter = new Podium('test');
             let handled = 0;
             emitter.on('test', () => {
 
@@ -123,7 +123,7 @@ describe('Podium', () => {
 
         it('invokes a handler everytime the subscribed event occurs', (done) => {
 
-            const emitter = new Podium();
+            const emitter = new Podium('test');
             let handled = 0;
             emitter.addListener('test', () => {
 
@@ -158,7 +158,7 @@ describe('Podium', () => {
 
         it('deletes a single handler from being subscribed to an event', (done) => {
 
-            const emitter = new Podium();
+            const emitter = new Podium('test');
             let handled = 0;
             const handler = () => {
 
@@ -178,7 +178,7 @@ describe('Podium', () => {
 
         it('deletes all handlers from being subscribed to an event', (done) => {
 
-            const emitter = new Podium();
+            const emitter = new Podium('test');
             let handled = 0;
             emitter.on('test', () => {
 
