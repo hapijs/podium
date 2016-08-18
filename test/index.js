@@ -25,7 +25,7 @@ describe('Podium', () => {
 
     it('emits events', (done) => {
 
-        const emitter = new Podium();
+        const emitter = new Podium(['a', 'b', 'c', 'd']);
 
         const updates = [];
 
@@ -77,7 +77,7 @@ describe('Podium', () => {
 
         it('invokes a handler once', (done) => {
 
-            const emitter = new Podium();
+            const emitter = new Podium('test');
             let counter = 0;
             emitter.once('test', () => ++counter);
             emitter.emit('test');
