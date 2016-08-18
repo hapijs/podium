@@ -75,6 +75,68 @@ describe('Podium', () => {
 
     describe('emit()', () => {
 
+        it('returns callbacks in order added', (done) => {
+
+            const emitter = new Podium(['a', 'b']);
+
+            const updates = [];
+
+            const aHandler = (data, next) => {
+
+                updates.push({ a: data, id: 1 });
+                setTimeout(next, 50);
+            };
+
+            emitter.on('a', aHandler, { callback: true });
+
+            const bHandler = (data) => {
+
+                updates.push({ b: data, id: 1 });
+            };
+
+            emitter.on('b', bHandler);
+
+            emitter.emit('a', 1, () => updates.push('a done'));
+            emitter.emit('b', 1, () => {
+
+                expect(updates).to.equal([{ a: 1, id: 1 }, 'a done', { b: 1, id: 1 }]);
+                done();
+            });
+        });
+
+        it('removes handlers while notifications pending', (done) => {
+
+            const emitter = new Podium(['a', 'b']);
+
+            const updates = [];
+
+            const aHandler = (data, next) => {
+
+                updates.push({ a: data, id: 1 });
+                setTimeout(() => {
+
+                    emitter.removeAllListeners('b');
+                    return next();
+                }, 50);
+            };
+
+            emitter.on('a', aHandler, { callback: true });
+
+            const bHandler = (data) => {
+
+                updates.push({ b: data, id: 1 });
+            };
+
+            emitter.on('b', bHandler);
+
+            emitter.emit('a', 1, () => updates.push('a done'));
+            emitter.emit('b', 1, () => {
+
+                expect(updates).to.equal([{ a: 1, id: 1 }, 'a done']);
+                done();
+            });
+        });
+
         it('invokes all handlers subscribed to an event', (done) => {
 
             const emitter = new Podium('test');
