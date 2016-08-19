@@ -38,6 +38,8 @@ describe('Podium', () => {
         emitter.on('c', (data) => updates.push({ c: data, id: 4 }));
         emitter.on('a', { count: 2 }, (data) => updates.push({ a: data, id: 5 }));
 
+        expect(emitter.hasListeners('a')).to.be.true();
+
         emitter.emit('a', 1);
         emitter.emit('a', 2);
         emitter.emit('b', 3);
@@ -54,6 +56,8 @@ describe('Podium', () => {
 
                 emitter.removeAllListeners('a');
                 emitter.removeAllListeners('d');
+
+                expect(emitter.hasListeners('a')).to.be.false();
 
                 emitter.emit('a', 9, () => {
 
