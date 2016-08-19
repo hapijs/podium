@@ -104,8 +104,7 @@ describe('Podium', () => {
             }
             reading(data, next) {
 
-                this.emit(this._type, data);
-                next();
+                this.emit(this._type, data, next);
             }
         }
 
@@ -126,14 +125,16 @@ describe('Podium', () => {
         const thermometer = new Thermometer();
         const hydrometer = new Hydrometer();
 
-        thermometer.once('temperature', (temperature) => {
+        thermometer.on('temperature', { block: 10 }, (temperature, next) => {
 
             expect(temperature).to.equal(72);
+            next();
         });
 
-        hydrometer.once('gravity', (gravity) => {
+        hydrometer.on('gravity', { block: 10 }, (gravity, next) => {
 
             expect(gravity).to.equal(7);
+            next();
         });
 
         thermometer.reading(72, () => {
