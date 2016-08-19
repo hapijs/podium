@@ -76,6 +76,20 @@ describe('Podium', () => {
         });
     });
 
+    it('clones data for every handler', (done) => {
+
+        const update = { a: 1 };
+
+        const emitter = new Podium({ name: 'test', clone: true });
+        emitter.on('test', (data) => {
+
+            expect(data).to.not.shallow.equal(update);
+            done();
+        });
+
+        emitter.emit('test', update);
+    });
+
     describe('emit()', () => {
 
         it('returns callbacks in order added', (done) => {
