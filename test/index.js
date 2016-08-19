@@ -357,4 +357,145 @@ describe('Podium', () => {
             });
         });
     });
+
+    describe('registerPodium()', () => {
+
+        it('combines multiple sources', (done) => {
+
+            const source1 = new Podium('test');
+            const source2 = new Podium('test');
+
+            const emitter = new Podium();
+            emitter.registerPodium(source1);
+            emitter.registerPodium(source2);
+
+            let counter = 0;
+            emitter.on('test', (data) => {
+
+                expect(data).to.equal(1);
+                if (++counter === 2) {
+                    done();
+                }
+            });
+
+            source1.emit('test', 1);
+            source2.emit('test', 1);
+        });
+
+        it('combines multiple sources in constructor', (done) => {
+
+            const source1 = new Podium('test');
+            const source2 = new Podium('test');
+
+            const emitter = new Podium([source1, source2]);
+
+            let counter = 0;
+            emitter.on('test', (data) => {
+
+                expect(data).to.equal(1);
+                if (++counter === 2) {
+                    done();
+                }
+            });
+
+            source1.emit('test', 1);
+            source2.emit('test', 1);
+        });
+
+        it('combines multiple sources in constructor and after', (done) => {
+
+            const source1 = new Podium('test');
+            const source2 = new Podium('test');
+
+            const emitter = new Podium(source1);
+            emitter.registerPodium(source2);
+
+            let counter = 0;
+            emitter.on('test', (data) => {
+
+                expect(data).to.equal(1);
+                if (++counter === 2) {
+                    done();
+                }
+            });
+
+            source1.emit('test', 1);
+            source2.emit('test', 1);
+        });
+
+        it('combines multiple sources with own emit', (done) => {
+
+            const source1 = new Podium('test');
+            const source2 = new Podium('test');
+
+            const emitter = new Podium();
+            emitter.registerPodium(source1);
+            emitter.registerPodium(source2);
+
+            let counter = 0;
+            emitter.on('test', (data) => {
+
+                expect(data).to.equal(1);
+                if (++counter === 3) {
+                    done();
+                }
+            });
+
+            source1.emit('test', 1);
+            emitter.emit('test', 1);
+            source2.emit('test', 1);
+        });
+
+        it('adds sources after listeners', (done) => {
+
+            const source1 = new Podium('test');
+            const source2 = new Podium('test');
+
+            const emitter = new Podium('test');
+
+            let counter = 0;
+            emitter.on('test', (data) => {
+
+                expect(data).to.equal(1);
+                if (++counter === 2) {
+                    done();
+                }
+            });
+
+            emitter.registerPodium(source1);
+            emitter.registerPodium(source2);
+
+            source1.emit('test', 1);
+            source2.emit('test', 1);
+        });
+
+        it('subscribed multiple times', (done) => {
+
+            const source1 = new Podium('test');
+            const source2 = new Podium('test');
+
+            const emitter = new Podium('test');
+
+            let counter = 0;
+            emitter.on('test', () => {
+
+                ++counter;
+            });
+
+            emitter.on('test', () => {
+
+                counter = counter * 4;
+            });
+
+            emitter.registerPodium(source1);
+            emitter.registerPodium(source2);
+
+            source1.emit('test');
+            source2.emit('test', null, () => {
+
+                expect(counter).to.equal(20);
+                done();
+            });
+        });
+    });
 });
