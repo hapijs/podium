@@ -400,14 +400,33 @@ describe('Podium', () => {
             let counter = 0;
             emitter.on('test', (data) => {
 
+                ++counter;
                 expect(data).to.equal(1);
-                if (++counter === 2) {
-                    done();
-                }
             });
 
             source1.emit('test', 1);
-            source2.emit('test', 1);
+            source2.emit('test', 1, () => {
+
+                expect(counter).to.equal(2);
+                done();
+            });
+        });
+
+        it('ignores repeated registrations', (done) => {
+
+            const source = new Podium('test');
+            const emitter = new Podium();
+            emitter.registerPodium(source);
+            emitter.registerPodium(source);
+
+            let counter = 0;
+            emitter.on('test', (data) => ++counter);
+
+            source.emit('test', null, () => {
+
+                expect(counter).to.equal(1);
+                done();
+            });
         });
 
         it('combines multiple sources in constructor', (done) => {
