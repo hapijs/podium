@@ -362,6 +362,30 @@ describe('Podium', () => {
         });
     });
 
+    describe('registerEvent()', () => {
+
+        it('combines multiple sources', (done) => {
+
+            const source = new Podium();
+            const emitter = new Podium('a');
+            emitter.registerPodium(source);
+
+            source.registerEvent(['a', 'b']);
+
+            let counter = 0;
+            emitter.on('b', (data) => {
+
+                expect(data).to.equal(1);
+                if (++counter === 2) {
+                    done();
+                }
+            });
+
+            source.emit('b', 1);
+            source.emit('b', 1);
+        });
+    });
+
     describe('registerPodium()', () => {
 
         it('combines multiple sources', (done) => {
