@@ -36,7 +36,7 @@ describe('Podium', () => {
 
         emitter.on('a', (data) => updates.push({ a: data, id: 3 }));
         emitter.on('c', (data) => updates.push({ c: data, id: 4 }));
-        emitter.on('a', (data) => updates.push({ a: data, id: 5 }), { count: 2 });
+        emitter.on('a', { count: 2 }, (data) => updates.push({ a: data, id: 5 }));
 
         emitter.emit('a', 1);
         emitter.emit('a', 2);
@@ -90,7 +90,7 @@ describe('Podium', () => {
                 setTimeout(next, 50);
             };
 
-            emitter.on('a', aHandler, { block: true });
+            emitter.on('a', { block: true }, aHandler);
 
             const bHandler = (data) => {
 
@@ -118,7 +118,7 @@ describe('Podium', () => {
                 updates.push({ a: data, id: 1 });
             };
 
-            emitter.on('a', aHandler, { block: 50 });
+            emitter.on('a', { block: 50 }, aHandler);
 
             const bHandler = (data) => {
 
@@ -151,7 +151,7 @@ describe('Podium', () => {
                 }, 50);
             };
 
-            emitter.on('a', aHandler, { block: true });
+            emitter.on('a', { block: true }, aHandler);
 
             const bHandler = (data) => {
 
@@ -214,6 +214,20 @@ describe('Podium', () => {
                 done();
             });
         });
+
+        it('clones data', (done) => {
+
+            const update = { a: 1 };
+
+            const emitter = new Podium('test');
+            emitter.on('test', { clone: true }, (data) => {
+
+                expect(data).to.not.shallow.equal(update);
+                done();
+            });
+
+            emitter.emit('test', update);
+        });
     });
 
     describe('addListener()', () => {
@@ -244,6 +258,25 @@ describe('Podium', () => {
             const emitter = new Podium('test');
             let counter = 0;
             emitter.once('test', () => ++counter);
+            emitter.emit('test');
+            emitter.emit('test');
+            emitter.emit('test', null, () => {
+
+                expect(counter).to.equal(1);
+                done();
+            });
+        });
+
+        it('invokes a handler once with options', (done) => {
+
+            const emitter = new Podium('test');
+            let counter = 0;
+            emitter.once('test', { block: true }, (data, next) => {
+
+                ++counter;
+                return next();
+            });
+
             emitter.emit('test');
             emitter.emit('test');
             emitter.emit('test', null, () => {
