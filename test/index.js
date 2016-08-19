@@ -370,7 +370,7 @@ describe('Podium', () => {
             const emitter = new Podium('a');
             emitter.registerPodium(source);
 
-            source.registerEvent(['a', 'b']);
+            source.registerEvent(['a', 'b', null]);
 
             let counter = 0;
             emitter.on('b', (data) => {
