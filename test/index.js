@@ -94,6 +94,55 @@ describe('Podium', () => {
         emitter.emit('test', update);
     });
 
+    it('can be inherited from', (done) => {
+
+        class Sensor extends Podium {
+            constructor(type) {
+
+                super(type);
+                this._type = type;
+            }
+            reading(data, next) {
+
+                this.emit(this._type, data, next);
+            }
+        }
+
+        class Thermometer extends Sensor {
+            constructor() {
+
+                super('temperature');
+            }
+        }
+
+        class Hydrometer extends Sensor {
+            constructor() {
+
+                super('gravity');
+            }
+        }
+
+        const thermometer = new Thermometer();
+        const hydrometer = new Hydrometer();
+
+        thermometer.on('temperature', { block: 10 }, (temperature, next) => {
+
+            expect(temperature).to.equal(72);
+            next();
+        });
+
+        hydrometer.on('gravity', { block: 10 }, (gravity, next) => {
+
+            expect(gravity).to.equal(7);
+            next();
+        });
+
+        thermometer.reading(72, () => {
+
+            hydrometer.reading(7, done);
+        });
+    });
+
     describe('emit()', () => {
 
         it('returns callbacks in order added', (done) => {
