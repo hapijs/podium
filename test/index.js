@@ -40,7 +40,7 @@ describe('Podium', () => {
 
         expect(emitter.hasListeners('a')).to.be.true();
 
-        emitter.emit('a', 1);
+        emitter.emit({ name: 'a' }, 1);
         emitter.emit('a', 2);
         emitter.emit('b', 3);
         emitter.emit('d', 4);
@@ -92,6 +92,18 @@ describe('Podium', () => {
         });
 
         emitter.emit('test', update);
+    });
+
+    it('spreads data', (done) => {
+
+        const emitter = new Podium({ name: 'test', spread: true });
+        emitter.on('test', (a, b, c) => {
+
+            expect({ a, b, c }).to.equal({ a: 1, b: 2, c: 3 });
+            done();
+        });
+
+        emitter.emit('test', [1, 2, 3]);
     });
 
     it('can be inherited from', (done) => {
