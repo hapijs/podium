@@ -296,6 +296,15 @@ describe('Podium', () => {
 
             emitter.emit({ name: 'test', tags: ['a', 'b'] }, [1, 2, 3]);
         });
+
+        it('errors on unknown channel', (done) => {
+
+            const emitter = new Podium({ name: 'test', channels: ['a', 'b'] });
+            expect(() => emitter.emit('test')).to.not.throw();
+            expect(() => emitter.emit({ name: 'test', channel: 'a' })).to.not.throw();
+            expect(() => emitter.emit({ name: 'test', channel: 'c' })).to.throw('Unknown c channel');
+            done();
+        });
     });
 
     describe('on()', () => {
@@ -416,6 +425,16 @@ describe('Podium', () => {
             emitter.on({ name: 'test', tags: false, spread: false }, handler);
 
             emitter.emit({ name: 'test', tags: ['a', 'b'] }, [1, 2, 3]);
+        });
+
+        it('errors on unknown channel', (done) => {
+
+            const emitter = new Podium({ name: 'test', channels: ['a', 'b'] });
+            expect(() => emitter.on('test', Hoek.ignore)).to.not.throw();
+            expect(() => emitter.on({ name: 'test', channels: 'a' }, Hoek.ignore)).to.not.throw();
+            expect(() => emitter.on({ name: 'test', channels: 'c' }, Hoek.ignore)).to.throw('Unknown event channels c');
+            expect(() => emitter.on({ name: 'test', channels: ['c', 'x'] }, Hoek.ignore)).to.throw('Unknown event channels c, x');
+            done();
         });
     });
 
