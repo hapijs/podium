@@ -555,6 +555,30 @@ describe('Podium', () => {
             source.emit('b', 1);
             source.emit('b', 1);
         });
+
+        it('ignores existing when shared is true', (done) => {
+
+            const source = new Podium();
+            source.registerEvent('a');
+            expect(() => {
+
+                source.registerEvent({ name: 'a', shared: true });
+            }).to.not.throw();
+
+            done();
+        });
+
+        it('errors on existing event', (done) => {
+
+            const source = new Podium();
+            source.registerEvent('a');
+            expect(() => {
+
+                source.registerEvent('a');
+            }).to.throw('Event a exists');
+
+            done();
+        });
     });
 
     describe('registerPodium()', () => {
