@@ -331,6 +331,22 @@ describe('Podium', () => {
 
             emitter.emit('test', update);
         });
+
+        it('disables tags and spread', (done) => {
+
+            const emitter = new Podium({ name: 'test', tags: true, spread: true });
+
+            const handler = function (data) {
+
+                expect(arguments.length).to.equal(1);
+                expect(data).to.equal([1, 2, 3]);
+                done();
+            };
+
+            emitter.on('test', { tags: false, spread: false }, handler);
+
+            emitter.emit({ name: 'test', tags: ['a', 'b'] }, [1, 2, 3]);
+        });
     });
 
     describe('addListener()', () => {
