@@ -362,9 +362,9 @@ describe('Podium', () => {
 
             const updates = [];
             emitter.on('test', (data) => updates.push({ id: 1, data }));
-            emitter.on({ name: 'test', channel: ['a', 'b'] }, (data) => updates.push({ id: 2, data }));
-            emitter.on({ name: 'test', channel: 'b' }, (data) => updates.push({ id: 3, data }));
-            emitter.on({ name: 'test', channel: ['c'] }, (data) => updates.push({ id: 4, data }));
+            emitter.on({ name: 'test', channels: ['a', 'b'] }, (data) => updates.push({ id: 2, data }));
+            emitter.on({ name: 'test', channels: 'b' }, (data) => updates.push({ id: 3, data }));
+            emitter.on({ name: 'test', channels: ['c'] }, (data) => updates.push({ id: 4, data }));
 
             emitter.emit({ name: 'test', channel: 'a' }, 1);
             emitter.emit({ name: 'test', channel: 'b' }, 2);
