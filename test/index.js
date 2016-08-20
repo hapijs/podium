@@ -80,32 +80,6 @@ describe('Podium', () => {
         });
     });
 
-    it('clones data for every handler', (done) => {
-
-        const update = { a: 1 };
-
-        const emitter = new Podium({ name: 'test', clone: true });
-        emitter.on('test', (data) => {
-
-            expect(data).to.not.shallow.equal(update);
-            done();
-        });
-
-        emitter.emit('test', update);
-    });
-
-    it('spreads data', (done) => {
-
-        const emitter = new Podium({ name: 'test', spread: true });
-        emitter.on('test', (a, b, c) => {
-
-            expect({ a, b, c }).to.equal({ a: 1, b: 2, c: 3 });
-            done();
-        });
-
-        emitter.emit('test', [1, 2, 3]);
-    });
-
     it('can be inherited from', (done) => {
 
         class Sensor extends Podium {
@@ -271,6 +245,56 @@ describe('Podium', () => {
                 expect(handled).to.equal(3);
                 done();
             });
+        });
+
+        it('clones data for every handler', (done) => {
+
+            const update = { a: 1 };
+
+            const emitter = new Podium({ name: 'test', clone: true });
+            emitter.on('test', (data) => {
+
+                expect(data).to.not.shallow.equal(update);
+                done();
+            });
+
+            emitter.emit('test', update);
+        });
+
+        it('spreads data', (done) => {
+
+            const emitter = new Podium({ name: 'test', spread: true });
+            emitter.on('test', (a, b, c) => {
+
+                expect({ a, b, c }).to.equal({ a: 1, b: 2, c: 3 });
+                done();
+            });
+
+            emitter.emit('test', [1, 2, 3]);
+        });
+
+        it('adds tags', (done) => {
+
+            const emitter = new Podium({ name: 'test', tags: true });
+            emitter.on('test', (data, tags) => {
+
+                expect({ data, tags }).to.equal({ data: [1, 2, 3], tags: { a: true, b: true } });
+                done();
+            });
+
+            emitter.emit({ name: 'test', tags: ['a', 'b'] }, [1, 2, 3]);
+        });
+
+        it('adds tags (spread)', (done) => {
+
+            const emitter = new Podium({ name: 'test', tags: true, spread: true });
+            emitter.on('test', (a, b, c, tags) => {
+
+                expect({ a, b, c, tags }).to.equal({ a: 1, b: 2, c: 3, tags: { a: true, b: true } });
+                done();
+            });
+
+            emitter.emit({ name: 'test', tags: ['a', 'b'] }, [1, 2, 3]);
         });
     });
 

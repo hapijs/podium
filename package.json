@@ -13,7 +13,8 @@
   },
   "dependencies": {
     "hoek": "4.x.x",
-    "items": "2.x.x"
+    "items": "2.x.x",
+    "joi": "9.x.x"
   },
   "devDependencies": {
     "code": "3.x.x",
