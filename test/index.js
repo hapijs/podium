@@ -300,7 +300,7 @@ describe('Podium', () => {
 
     describe('on()', () => {
 
-        it('invokes a handler everytime the subscribed event occurs', (done) => {
+        it('invokes a handler on every event', (done) => {
 
             const emitter = new Podium('test');
             let handled = 0;
@@ -314,6 +314,43 @@ describe('Podium', () => {
             emitter.emit('test', null, () => {
 
                 expect(handled).to.equal(3);
+                done();
+            });
+        });
+
+        it('filters events', (done) => {
+
+            const emitter = new Podium('test');
+
+            const updates = [];
+            emitter.on('test', (data) => updates.push({ id: 1, data }));
+            emitter.on('test', { filter: ['a', 'b'] }, (data) => updates.push({ id: 2, data }));
+            emitter.on('test', { filter: ['b'] }, (data) => updates.push({ id: 3, data }));
+            emitter.on('test', { filter: ['c'] }, (data) => updates.push({ id: 4, data }));
+            emitter.on('test', { filter: { tags: ['a', 'b'], all: true } }, (data) => updates.push({ id: 5, data }));
+
+            emitter.emit({ name: 'test', tags: ['a'] }, 1);
+            emitter.emit({ name: 'test', tags: ['b'] }, 2);
+            emitter.emit({ name: 'test', tags: ['d'] }, 3);
+            emitter.emit({ name: 'test', tags: ['a'] }, 4);
+            emitter.emit({ name: 'test', tags: ['a', 'b'] }, 5);
+            emitter.emit('test', 6, () => {
+
+                expect(updates).to.equal([
+                    { id: 1, data: 1 },
+                    { id: 2, data: 1 },
+                    { id: 1, data: 2 },
+                    { id: 2, data: 2 },
+                    { id: 3, data: 2 },
+                    { id: 1, data: 3 },
+                    { id: 1, data: 4 },
+                    { id: 2, data: 4 },
+                    { id: 1, data: 5 },
+                    { id: 2, data: 5 },
+                    { id: 3, data: 5 },
+                    { id: 5, data: 5 },
+                    { id: 1, data: 6 }
+                ]);
                 done();
             });
         });
