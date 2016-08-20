@@ -36,7 +36,7 @@ describe('Podium', () => {
 
         emitter.on('a', (data) => updates.push({ a: data, id: 3 }));
         emitter.on('c', (data) => updates.push({ c: data, id: 4 }));
-        emitter.on('a', { count: 2 }, (data) => updates.push({ a: data, id: 5 }));
+        emitter.on({ name: 'a', count: 2 }, (data) => updates.push({ a: data, id: 5 }));
 
         expect(emitter.hasListeners('a')).to.be.true();
 
@@ -111,13 +111,13 @@ describe('Podium', () => {
         const thermometer = new Thermometer();
         const hydrometer = new Hydrometer();
 
-        thermometer.on('temperature', { block: 10 }, (temperature, next) => {
+        thermometer.on({ name: 'temperature', block: 10 }, (temperature, next) => {
 
             expect(temperature).to.equal(72);
             next();
         });
 
-        hydrometer.on('gravity', { block: 10 }, (gravity, next) => {
+        hydrometer.on({ name: 'gravity', block: 10 }, (gravity, next) => {
 
             expect(gravity).to.equal(7);
             next();
@@ -143,7 +143,7 @@ describe('Podium', () => {
                 setTimeout(next, 50);
             };
 
-            emitter.on('a', { block: true }, aHandler);
+            emitter.on({ name: 'a', block: true }, aHandler);
 
             const bHandler = (data) => {
 
@@ -171,7 +171,7 @@ describe('Podium', () => {
                 updates.push({ a: data, id: 1 });
             };
 
-            emitter.on('a', { block: 50 }, aHandler);
+            emitter.on({ name: 'a', block: 50 }, aHandler);
 
             const bHandler = (data) => {
 
@@ -204,7 +204,7 @@ describe('Podium', () => {
                 }, 50);
             };
 
-            emitter.on('a', { block: true }, aHandler);
+            emitter.on({ name: 'a', block: true }, aHandler);
 
             const bHandler = (data) => {
 
@@ -324,10 +324,10 @@ describe('Podium', () => {
 
             const updates = [];
             emitter.on('test', (data) => updates.push({ id: 1, data }));
-            emitter.on('test', { filter: ['a', 'b'] }, (data) => updates.push({ id: 2, data }));
-            emitter.on('test', { filter: ['b'] }, (data) => updates.push({ id: 3, data }));
-            emitter.on('test', { filter: ['c'] }, (data) => updates.push({ id: 4, data }));
-            emitter.on('test', { filter: { tags: ['a', 'b'], all: true } }, (data) => updates.push({ id: 5, data }));
+            emitter.on({ name: 'test', filter: ['a', 'b'] }, (data) => updates.push({ id: 2, data }));
+            emitter.on({ name: 'test', filter: ['b'] }, (data) => updates.push({ id: 3, data }));
+            emitter.on({ name: 'test', filter: ['c'] }, (data) => updates.push({ id: 4, data }));
+            emitter.on({ name: 'test', filter: { tags: ['a', 'b'], all: true } }, (data) => updates.push({ id: 5, data }));
 
             emitter.emit({ name: 'test', tags: ['a'] }, 1);
             emitter.emit({ name: 'test', tags: ['b'] }, 2);
@@ -360,7 +360,7 @@ describe('Podium', () => {
             const update = { a: 1 };
 
             const emitter = new Podium('test');
-            emitter.on('test', { clone: true }, (data) => {
+            emitter.on({ name: 'test', clone: true }, (data) => {
 
                 expect(data).to.not.shallow.equal(update);
                 done();
@@ -380,7 +380,7 @@ describe('Podium', () => {
                 done();
             };
 
-            emitter.on('test', { tags: false, spread: false }, handler);
+            emitter.on({ name: 'test', tags: false, spread: false }, handler);
 
             emitter.emit({ name: 'test', tags: ['a', 'b'] }, [1, 2, 3]);
         });
@@ -427,7 +427,7 @@ describe('Podium', () => {
 
             const emitter = new Podium('test');
             let counter = 0;
-            emitter.once('test', { block: true }, (data, next) => {
+            emitter.once({ name: 'test', block: true }, (data, next) => {
 
                 ++counter;
                 return next();
