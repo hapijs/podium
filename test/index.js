@@ -307,6 +307,16 @@ describe('Podium', () => {
         });
     });
 
+    describe('_emit()', () => {
+
+        it('provides secondary emit interface', (done) => {
+
+            const emitter = new Podium(['a']);
+            emitter.on('a', done);
+            emitter._emit('a');
+        });
+    });
+
     describe('on()', () => {
 
         it('invokes a handler on every event', (done) => {
