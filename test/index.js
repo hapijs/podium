@@ -255,6 +255,7 @@ describe('Podium', () => {
             emitter.on('test', (data) => {
 
                 expect(data).to.not.shallow.equal(update);
+                expect(data).to.equal(update);
                 done();
             });
 
@@ -415,6 +416,7 @@ describe('Podium', () => {
             emitter.on({ name: 'test', clone: true }, (data) => {
 
                 expect(data).to.not.shallow.equal(update);
+                expect(data).to.equal(update);
                 done();
             });
 
