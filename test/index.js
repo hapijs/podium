@@ -247,6 +247,63 @@ describe('Podium', () => {
             });
         });
 
+        it('generates data once when function', (done) => {
+
+            let count = 0;
+            const update = () => {
+
+                ++count;
+                return { a: 1 };
+            };
+
+            const emitter = new Podium({ name: 'test' });
+
+            let received = 0;
+            emitter.on({ name: 'test', filter: 'a' }, (data) => {
+
+                ++received;
+                expect(data).to.equal({ a: 1 });
+            });
+
+            emitter.emit({ name: 'test', tags: ['a'] }, update);
+            emitter.emit({ name: 'test', tags: ['b'] }, update, () => {
+
+                expect(received).to.equal(1);
+                expect(count).to.equal(1);
+                done();
+            });
+        });
+
+        it('generates function data', (done) => {
+
+            const inner = () => 5;
+            let count = 0;
+            const update = () => {
+
+                ++count;
+                return inner;
+            };
+
+            const emitter = new Podium({ name: 'test' });
+
+            let received = 0;
+            const handler = (data) => {
+
+                ++received;
+                expect(data).to.equal(inner);
+            };
+
+            emitter.on('test', handler);
+            emitter.on('test', handler);
+
+            emitter.emit('test', update, () => {
+
+                expect(count).to.equal(1);
+                expect(received).to.equal(2);
+                done();
+            });
+        });
+
         it('clones data for every handler', (done) => {
 
             const update = { a: 1 };
