@@ -331,6 +331,18 @@ describe('Podium', () => {
             emitter.emit('test', [1, 2, 3]);
         });
 
+        it('spreads data (function)', (done) => {
+
+            const emitter = new Podium({ name: 'test', spread: true });
+            emitter.on('test', (a, b, c) => {
+
+                expect({ a, b, c }).to.equal({ a: 1, b: 2, c: 3 });
+                done();
+            });
+
+            emitter.emit('test', () => [1, 2, 3]);
+        });
+
         it('adds tags', (done) => {
 
             const emitter = new Podium({ name: 'test', tags: true });
