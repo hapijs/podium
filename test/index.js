@@ -45,8 +45,11 @@ describe('Podium', () => {
         emitter.emit('b', 3);
         emitter.emit('d', 4);
         emitter.emit('b', 5);
+
+        let async = false;
         emitter.emit('d', 6, () => {
 
+            expect(async).to.be.true();
             emitter.removeListener('b', handler2);
             emitter.removeListener('a', Hoek.ignore);
             emitter.removeListener('d', Hoek.ignore);
@@ -78,6 +81,8 @@ describe('Podium', () => {
                 });
             });
         });
+
+        async = true;
     });
 
     it('can be inherited from', (done) => {
