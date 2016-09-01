@@ -262,6 +262,8 @@ describe('Podium', () => {
             };
 
             const emitter = new Podium({ name: 'test' });
+            const sub = new Podium();
+            sub.registerPodium(emitter);
 
             let received = 0;
             emitter.on({ name: 'test', filter: 'a' }, (data) => {
@@ -270,10 +272,16 @@ describe('Podium', () => {
                 expect(data).to.equal({ a: 1 });
             });
 
+            sub.on({ name: 'test', filter: 'a' }, (data) => {
+
+                ++received;
+                expect(data).to.equal({ a: 1 });
+            });
+
             emitter.emit({ name: 'test', tags: ['a'] }, update);
             emitter.emit({ name: 'test', tags: ['b'] }, update, () => {
 
-                expect(received).to.equal(1);
+                expect(received).to.equal(2);
                 expect(count).to.equal(1);
                 done();
             });
