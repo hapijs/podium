@@ -51,7 +51,7 @@ event activities. The `events` argument can be:
 
 ## `podium.registerPodium(podiums)`
 
-Registers another emitter as an even source for the current emitter (any event update emitted by the
+Registers another emitter as an event source for the current emitter (any event update emitted by the
 source emitter is passed to any subscriber of the current emitter) where:
 - `podiums` - a `Podium` object or an array of objects, each added as a source.
 
