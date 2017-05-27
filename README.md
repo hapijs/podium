@@ -1,4 +1,4 @@
-#podium
+# podium
 
 Node (semi) compatible event emitter with extra features.
 
@@ -14,7 +14,9 @@ is largely insignificant as implementing these features will have similar cost o
 Lead Maintainer - [Eran Hammer](https://github.com/hueniverse)
 
 ## `new Podium(events)`
+
 This creates a new event emitter.
+
 ```javascript
 const Podium = require('podium');
 const podiumObject = new Podium(); // new emitter
@@ -23,8 +25,10 @@ const podiumObject2 = new Podium('event1');// creates new event and calls regist
 ```
 
 ## `podium.registerEvent(events)`
+
 Registers an event `event1` to emitter.
-```
+
+```javascript
 podiumObject.registerEvent('event1');
 
 //with optional parameters
@@ -34,10 +38,11 @@ podiumObject.registerEvent({
  });
 ```
 
-
 ## `podium.on(criteria, listener)`
-Subscribe a handler to an event. Handler can be seen a function which will be called when the event occurs. 
-```
+
+Subscribe a handler to an event. Handler can be seen a function which will be called when the event occurs.
+
+```javascript
 podiumObject.registerEvent('event1');
 
 podiumObject.on('event1',function(update){ // Way 1
@@ -50,40 +55,52 @@ const listener1 = function() { // normal function object
 podiumObject.on('event1',listener1); // Way 2
 ```
 
-##`podium.addListener(criteria, listener)`
-Same as podium.on().
-```
+## `podium.addListener(criteria, listener)`
+
+Same as `podium.on()`.
+
+```javascript
 podiumObject.addListener('event1',listener1);
 ```
 
-##`podium.once(criteria, listener)`
+## `podium.once(criteria, listener)`
+
 Same as calling podium.on() with the count option set to 1. Whenever we call emit(), `listener1` will get fired
 but also get removed, so that it won't get fired on call to emit().
-```
+
+```javascript
 podiumObject.once('event1',listener1);
 ```
 
 ## `podium.emit(criteria, data, [callback])`
+
 Emits an event update to all the subscribed listeners.
-```
+
+```javascript
 podiumObject.emit('event1','here we can send any data to listeners.');
 ```
 
-##`podium.removeListener(name, listener)`
+## `podium.removeListener(name, listener)`
+
 Removes all listeners subscribed to a given event name matching the provided listener method.
-```
+
+```javascript
 podiumObject.removeListener('event1',listener1);
 ```
 
-##`podium.removeAllListeners(name)`
+## `podium.removeAllListeners(name)`
+
 Removes all listeners subscribed to a given event name.
-```
+
+```javascript
 podiumObject.removeAllListeners('event1');
 ```
 
-##`podium.hasListeners(name)`
-Returns whether an event has any listeners subscribed. 
-```
+## `podium.hasListeners(name)`
+
+Returns whether an event has any listeners subscribed.
+
+```javascript
 if(podiumObject.hasListeners('event1')){
     console.log('this event has some listeners left');
 }
@@ -94,14 +111,14 @@ else{
 ```
 
 ## `podium.registerPodium(podiums)`
-Registers a podium object(emitter) to another podium object(source). Whenever any event gets registered on `emitterObject` 
-it gets registered on `sourceObject` as well. But reverse is not true. 
 
-```
-const source1Object = new Podium('test'); 
+Registers a podium object(emitter) to another podium object(source). Whenever any event gets registered on `emitterObject` it gets registered on `sourceObject` as well. But reverse is not true.
+
+```javascript
+const source1Object = new Podium('test');
 const source2Object = new Podium('test');
 
-const emitterObject = new Podium(source1Object); 
+const emitterObject = new Podium(source1Object);
 emitterObject.registerPodium(source2Object);
 
 const listener1 = function() { // normal function
@@ -115,9 +132,7 @@ source1Object.on('test',listener2); // listener2 gets registered on source1Objec
 
 source1Object.emit('test', 1); // runs all registered events
 emitterObject.emit('test', 2);
-
 ```
-
 
 ## API
 
