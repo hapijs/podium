@@ -441,6 +441,64 @@ describe('Podium', () => {
         });
     });
 
+    describe('handler()', () => {
+
+        it('recovers from exception thrown in handler', (done) => {
+
+            const emitter = new Podium(['a', 'b']);
+
+            let received = null;
+            emitter.onPodiumError = (err) => {
+
+                received = err;
+            };
+
+            const updates = [];
+            const aHandler = (data) => updates.push('a');
+            const bHandler = (data) => {
+
+                updates.push('b');
+                throw new Error('oops');
+            };
+
+            emitter.on('a', aHandler);
+            emitter.on('b', bHandler);
+
+            emitter.emit('a', 1);
+            emitter.emit('b', 1);
+            emitter.emit('a', 1, () => {
+
+                expect(updates).to.equal(['a', 'b', 'a']);
+                expect(received.message).to.equal('oops');
+                done();
+            });
+        });
+
+        it('throws when no onPodiumError set when exception thrown in handler', (done) => {
+
+            const emitter = new Podium(['a', 'b']);
+
+            const updates = [];
+            const aHandler = (data) => updates.push('a');
+            const bHandler = (data) => {
+
+                updates.push('b');
+                throw new Error('oops');
+            };
+
+            emitter.on('a', aHandler);
+            emitter.on('b', bHandler);
+            emitter.emit('a', 1);
+
+            expect(() => {
+
+                emitter.emit('b', 1);
+            }).to.throw('oops');
+
+            done();
+        });
+    });
+
     describe('on()', () => {
 
         it('invokes a handler on every event', (done) => {
