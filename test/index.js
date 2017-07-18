@@ -88,11 +88,13 @@ describe('Podium', () => {
     it('can be inherited from', (done) => {
 
         class Sensor extends Podium {
+
             constructor(type) {
 
                 super(type);
                 this._type = type;
             }
+
             reading(data, next) {
 
                 this.emit(this._type, data, next);
@@ -100,6 +102,7 @@ describe('Podium', () => {
         }
 
         class Thermometer extends Sensor {
+
             constructor() {
 
                 super('temperature');
@@ -107,6 +110,7 @@ describe('Podium', () => {
         }
 
         class Hydrometer extends Sensor {
+
             constructor() {
 
                 super('gravity');
@@ -131,6 +135,43 @@ describe('Podium', () => {
         thermometer.reading(72, () => {
 
             hydrometer.reading(7, done);
+        });
+    });
+
+    describe('decorate()', () => {
+
+        it('reuses podium events to decorate a new one', (done) => {
+
+            const source = new Podium(['a', 'b']);
+            const Emitter = function () { };
+            Hoek.inherits(Emitter, Podium);
+
+            const emitter = new Emitter();
+            Podium.decorate(emitter, source);
+
+            const updates = [];
+
+            const aHandler = (data, next) => {
+
+                updates.push({ a: data, id: 1 });
+                setTimeout(next, 50);
+            };
+
+            emitter.on({ name: 'a', block: true }, aHandler);
+
+            const bHandler = (data) => {
+
+                updates.push({ b: data, id: 1 });
+            };
+
+            emitter.on('b', bHandler);
+
+            emitter.emit('a', 1, () => updates.push('a done'));
+            emitter.emit('b', 1, () => {
+
+                expect(updates).to.equal([{ a: 1, id: 1 }, 'a done', { b: 1, id: 1 }]);
+                done();
+            });
         });
     });
 
