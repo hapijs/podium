@@ -4,9 +4,9 @@ Node (semi) compatible event emitter with extra features.
 
 **podium** is an event emitter with support for tags, filters, channels, event update cloning,
 arguments spreading, and other features useful when building large scale applications.
-While node's native [`EventEmitter`](https://nodejs.org/dist/latest-v6.x/docs/api/events.html#events_class_eventemitter) is strictly focused on maximum performance, 
-it lacks many features that do not belong in the core implementation. **podium** is not restricted by 
-node's performance requirement as it is designed for application layer needs where it's overhead 
+While node's native [`EventEmitter`](https://nodejs.org/dist/latest-v6.x/docs/api/events.html#events_class_eventemitter) is strictly focused on maximum performance,
+it lacks many features that do not belong in the core implementation. **podium** is not restricted by
+node's performance requirement as it is designed for application layer needs where it's overhead
 is largely insignificant as implementing these features will have similar cost on top of the native emitter.
 
 [![Build Status](https://secure.travis-ci.org/hapijs/podium.svg)](http://travis-ci.org/hapijs/podium)
@@ -145,9 +145,10 @@ source1Object.emit('test', 1); // runs all registered events
 emitterObject.emit('test', 2);
 ```
 
-# CookBook
+# Cookbook
 
 ### <a name="channels"></a>`channels`
+
 ```js
 const Podium = require('podium');
 const podiumObject = new Podium();
@@ -166,7 +167,7 @@ const listener1 = (data) => {
 
     console.log('listener1 called', data);
 };
-const listener2 = function(data){
+const listener2 = (data) => {
 
     console.log('listener2 called', data);
 };
@@ -202,7 +203,9 @@ podiumObject.emit({
     }
 });
 ```
+
 ### <a name="clone"></a>`clone`
+
 ```js
 const Podium = require('podium');
 const podiumObject = new Podium();
@@ -224,7 +227,7 @@ const listener1 = (data) => {
     data[0] = 55;
     console.log('listener1 called', data);
 };
-const listener2 = function(data){
+const listener2 = (data) => {
 
     data[0] = 100;
     console.log('listener2 called', data);
@@ -240,8 +243,10 @@ podiumObject.on({
     channels: ['ch1']
 }, listener2);
 
-var arr= [0, 1, 2, 3, 4, 4, 5];
-console.log('intially: ', arr);
+var arr = [0, 1, 2, 3, 4, 4, 5];
+
+console.log('initially: ', arr);
+
 podiumObject.emit({
     name: 'event1',
     channel: 'ch1'
@@ -250,11 +255,13 @@ podiumObject.emit({
     if (err){
         console.log('callback 1 error');
     }
-    else{
+    else {
         console.log('callback 1 returned true!');
     }
 });
+
 console.log('after event1, ch1: ', arr);
+
 podiumObject.emit({
     name: 'event2',
     channel: 'ch1'
@@ -263,13 +270,16 @@ podiumObject.emit({
     if (err){
         console.log('callback 2 error');
     }
-    else{
+    else {
         console.log('callback 2 returned true!');
     }
 });
+
 console.log('after event2, ch1: ', arr);
 ```
+
 ### <a name="spread"></a>`spread`
+
 ```js
 const Podium = require('podium');
 const podiumObject = new Podium();
@@ -291,7 +301,7 @@ const listener1 = (data1, data2, data3, data4) => {
     console.log('listener1 called', data1, data2, data3, data4);
 };
 
-const listener2 = function(data) {
+const listener2 = (data) => {
 
     data[0] = 100;
     console.log('listener2 called', data);
@@ -307,8 +317,10 @@ podiumObject.on({
     channels: ['ch1']
 }, listener2);
 
-var arr= [0, 1, 2, 3, 4, 4, 5];
-console.log('intially: ', arr);
+var arr = [0, 1, 2, 3, 4, 4, 5];
+
+console.log('initially: ', arr);
+
 podiumObject.emit({
     name: 'event1',
     channel: 'ch1'
@@ -317,11 +329,13 @@ podiumObject.emit({
     if (err){
         console.log('callback 1 error');
     }
-    else{
+    else {
         console.log('callback 1 returned true!');
     }
 });
+
 console.log('after event1, ch1: ', arr);
+
 podiumObject.emit({
     name: 'event2',
     channel: 'ch1'
@@ -330,13 +344,15 @@ podiumObject.emit({
     if (err){
         console.log('callback 2 error');
     }
-    else{
+    else {
         console.log('callback 2 returned true!');
     }
 });
 console.log('after event2, ch1: ', arr);
 ```
+
 ### <a name="shared"></a>`shared`
+
 ```js
 const Podium = require('podium');
 const podiumObject = new Podium();
@@ -354,7 +370,7 @@ podiumObject.registerEvent([
         shared: true
     }
 ]);
-const listener2 = function(data){
+const listener2 = (data) => {
 
     console.log('listener2 called', data);
 };
@@ -364,22 +380,24 @@ podiumObject.on({
     channels: ['ch1']
 }, listener2);
 
-var arr= [0, 1, 2, 3, 4, 4, 5];
+var arr = [0, 1, 2, 3, 4, 4, 5];
+
 podiumObject.emit({
     name: 'event1',
     channel: 'ch1'
-}, arr, function(err){  
+}, arr, function(err){
 
     if (err){
         console.log('callback 1 error');
     }
-    else{
+    else {
         console.log('callback 1 returned true!');
     }
 });
 ```
 
 ### <a name="tagFilter"></a>`tag-filter`
+
 ```js
 const Podium = require('podium');
 const emitter = new Podium('test');
@@ -402,7 +420,9 @@ emitter.emit('test', 6, () => {
     console.log(updates);
 });
 ```
+
 ### <a name="count"></a>`count`
+
 ```js
 const Podium = require('podium');
 const podiumObject = new Podium();
