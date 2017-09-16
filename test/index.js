@@ -23,7 +23,7 @@ const expect = Code.expect;
 
 describe('Podium', () => {
 
-    it('emits events', (done) => {
+    it('emits events', async () => {
 
         const emitter = new Podium(['a', 'b', 'c', 'd']);
 
@@ -46,46 +46,37 @@ describe('Podium', () => {
         emitter.emit('d', 4);
         emitter.emit('b', 5);
 
-        let async = false;
-        emitter.emit('d', 6, () => {
+        await emitter.emit('d', 6);
 
-            expect(async).to.be.true();
-            emitter.removeListener('b', handler2);
-            emitter.removeListener('a', Hoek.ignore);
-            emitter.removeListener('d', Hoek.ignore);
+        emitter.removeListener('b', handler2);
+        emitter.removeListener('a', Hoek.ignore);
+        emitter.removeListener('d', Hoek.ignore);
 
-            emitter.emit('a', 7);
-            emitter.emit('b', 8, () => {
+        await emitter.emit('a', 7);
+        await emitter.emit('b', 8);
 
-                emitter.removeAllListeners('a');
-                emitter.removeAllListeners('d');
+        emitter.removeAllListeners('a');
+        emitter.removeAllListeners('d');
 
-                expect(emitter.hasListeners('a')).to.be.false();
+        expect(emitter.hasListeners('a')).to.be.false();
 
-                emitter.emit('a', 9, () => {
+        await emitter.emit('a', 9);
 
-                    expect(updates).to.equal([
-                        { a: 1, id: 1 },
-                        { a: 1, id: 3 },
-                        { a: 1, id: 5 },
-                        { a: 2, id: 1 },
-                        { a: 2, id: 3 },
-                        { a: 2, id: 5 },
-                        { b: 3, id: 2 },
-                        { b: 5, id: 2 },
-                        { a: 7, id: 1 },
-                        { a: 7, id: 3 }
-                    ]);
-
-                    done();
-                });
-            });
-        });
-
-        async = true;
+        expect(updates).to.equal([
+            { a: 1, id: 1 },
+            { a: 1, id: 3 },
+            { a: 1, id: 5 },
+            { a: 2, id: 1 },
+            { a: 2, id: 3 },
+            { a: 2, id: 5 },
+            { b: 3, id: 2 },
+            { b: 5, id: 2 },
+            { a: 7, id: 1 },
+            { a: 7, id: 3 }
+        ]);
     });
 
-    it('can be inherited from', (done) => {
+    it('can be inherited from', async () => {
 
         class Sensor extends Podium {
 
@@ -95,9 +86,9 @@ describe('Podium', () => {
                 this._type = type;
             }
 
-            reading(data, next) {
+            async reading(data) {
 
-                this.emit(this._type, data, next);
+                return this.emit(this._type, data);
             }
         }
 
@@ -120,27 +111,25 @@ describe('Podium', () => {
         const thermometer = new Thermometer();
         const hydrometer = new Hydrometer();
 
-        thermometer.on({ name: 'temperature', block: 10 }, (temperature, next) => {
+        thermometer.on({ name: 'temperature', block: true }, (temperature, next) => {
 
             expect(temperature).to.equal(72);
             next();
         });
 
-        hydrometer.on({ name: 'gravity', block: 10 }, (gravity, next) => {
+        hydrometer.on({ name: 'gravity', block: true }, (gravity, next) => {
 
             expect(gravity).to.equal(7);
             next();
         });
 
-        thermometer.reading(72, () => {
-
-            hydrometer.reading(7, done);
-        });
+        await thermometer.reading(72);
+        await hydrometer.reading(7);
     });
 
     describe('decorate()', () => {
 
-        it('reuses podium events to decorate a new one', (done) => {
+        it('reuses podium events to decorate a new one', async () => {
 
             const source = new Podium(['a', 'b']);
             const Emitter = function () { };
@@ -166,18 +155,17 @@ describe('Podium', () => {
 
             emitter.on('b', bHandler);
 
-            emitter.emit('a', 1, () => updates.push('a done'));
-            emitter.emit('b', 1, () => {
+            await emitter.emit('a', 1);
+            updates.push('a done');
 
-                expect(updates).to.equal([{ a: 1, id: 1 }, 'a done', { b: 1, id: 1 }]);
-                done();
-            });
+            await emitter.emit('b', 1);
+            expect(updates).to.equal([{ a: 1, id: 1 }, 'a done', { b: 1, id: 1 }]);
         });
     });
 
     describe('emit()', () => {
 
-        it('returns callbacks in order added', (done) => {
+        it('returns callbacks in order added', async () => {
 
             const emitter = new Podium(['a', 'b']);
 
@@ -198,15 +186,13 @@ describe('Podium', () => {
 
             emitter.on('b', bHandler);
 
-            emitter.emit('a', 1, () => updates.push('a done'));
-            emitter.emit('b', 1, () => {
-
-                expect(updates).to.equal([{ a: 1, id: 1 }, 'a done', { b: 1, id: 1 }]);
-                done();
-            });
+            await emitter.emit('a', 1);
+            updates.push('a done');
+            await emitter.emit('b', 1);
+            expect(updates).to.equal([{ a: 1, id: 1 }, 'a done', { b: 1, id: 1 }]);
         });
 
-        it('times out on blocked handler', (done) => {
+        it('times out on blocked handler', async () => {
 
             const emitter = new Podium(['a', 'b']);
 
@@ -226,15 +212,13 @@ describe('Podium', () => {
 
             emitter.on('b', bHandler);
 
-            emitter.emit('a', 1, () => updates.push('a done'));
-            emitter.emit('b', 1, () => {
-
-                expect(updates).to.equal([{ a: 1, id: 1 }, 'a done', { b: 1, id: 1 }]);
-                done();
-            });
+            await emitter.emit('a', 1);
+            updates.push('a done');
+            await emitter.emit('b', 1);
+            expect(updates).to.equal([{ a: 1, id: 1 }, 'a done', { b: 1, id: 1 }]);
         });
 
-        it('removes handlers while notifications pending', (done) => {
+        it('removes handlers while notifications pending', async () => {
 
             const emitter = new Podium(['a', 'b']);
 
@@ -259,15 +243,13 @@ describe('Podium', () => {
 
             emitter.on('b', bHandler);
 
-            emitter.emit('a', 1, () => updates.push('a done'));
-            emitter.emit('b', 1, () => {
-
-                expect(updates).to.equal([{ a: 1, id: 1 }, 'a done']);
-                done();
-            });
+            await emitter.emit('a', 1);
+            updates.push('a done');
+            await emitter.emit('b', 1);
+            expect(updates).to.equal([{ a: 1, id: 1 }, 'a done']);
         });
 
-        it('invokes all handlers subscribed to an event', (done) => {
+        it('invokes all handlers subscribed to an event', async () => {
 
             const emitter = new Podium('test');
             let handled = 0;
@@ -286,14 +268,11 @@ describe('Podium', () => {
                 handled++;
             });
 
-            emitter.emit('test', null, () => {
-
-                expect(handled).to.equal(3);
-                done();
-            });
+            await emitter.emit('test', null);
+            expect(handled).to.equal(3);
         });
 
-        it('generates data once when function', (done) => {
+        it('generates data once when function', async () => {
 
             let count = 0;
             const update = () => {
@@ -320,15 +299,13 @@ describe('Podium', () => {
             });
 
             emitter.emit({ name: 'test', tags: ['a'] }, update);
-            emitter.emit({ name: 'test', tags: ['b'] }, update, () => {
+            await emitter.emit({ name: 'test', tags: ['b'] }, update);
 
-                expect(received).to.equal(2);
-                expect(count).to.equal(1);
-                done();
-            });
+            expect(received).to.equal(2);
+            expect(count).to.equal(1);
         });
 
-        it('generates function data', (done) => {
+        it('generates function data', async () => {
 
             const inner = () => 5;
             let count = 0;
@@ -350,27 +327,24 @@ describe('Podium', () => {
             emitter.on('test', handler);
             emitter.on('test', handler);
 
-            emitter.emit('test', update, () => {
+            await emitter.emit('test', update);
 
-                expect(count).to.equal(1);
-                expect(received).to.equal(2);
-                done();
-            });
+            expect(count).to.equal(1);
+            expect(received).to.equal(2);
         });
 
-        it('clones data for every handler', (done) => {
+        it('clones data for every handler', async () => {
 
             const update = { a: 1 };
 
             const emitter = new Podium({ name: 'test', clone: true });
-            emitter.on('test', (data) => {
-
-                expect(data).to.not.shallow.equal(update);
-                expect(data).to.equal(update);
-                done();
-            });
+            const once = emitter.once('test');
 
             emitter.emit('test', update);
+
+            const data = await once;
+            expect(data).to.not.shallow.equal(update);
+            expect(data).to.equal(update);
         });
 
         it('spreads data', (done) => {
@@ -397,6 +371,14 @@ describe('Podium', () => {
             emitter.emit('test', () => [1, 2, 3]);
         });
 
+        it('overrides spread data on once with promise', async () => {
+
+            const emitter = new Podium({ name: 'test', spread: true });
+            const once = emitter.once('test');
+            emitter.emit('test', [1, 2, 3]);
+            expect(await once).to.equal([1, 2, 3]);
+        });
+
         it('adds tags', (done) => {
 
             const emitter = new Podium({ name: 'test', tags: true });
@@ -421,13 +403,12 @@ describe('Podium', () => {
             emitter.emit({ name: 'test', tags: ['a', 'b'] }, [1, 2, 3]);
         });
 
-        it('errors on unknown channel', (done) => {
+        it('errors on unknown channel', async () => {
 
             const emitter = new Podium({ name: 'test', channels: ['a', 'b'] });
-            expect(() => emitter.emit('test')).to.not.throw();
-            expect(() => emitter.emit({ name: 'test', channel: 'a' })).to.not.throw();
-            expect(() => emitter.emit({ name: 'test', channel: 'c' })).to.throw('Unknown c channel');
-            done();
+            await expect(emitter.emit('test')).to.not.reject();
+            await expect(emitter.emit({ name: 'test', channel: 'a' })).to.not.reject();
+            await expect(emitter.emit({ name: 'test', channel: 'c' })).to.reject('Unknown c channel');
         });
     });
 
@@ -443,7 +424,7 @@ describe('Podium', () => {
 
     describe('handler()', () => {
 
-        it('recovers from exception thrown in handler', (done) => {
+        it('recovers from exception thrown in handler', async () => {
 
             const emitter = new Podium(['a', 'b']);
 
@@ -466,15 +447,13 @@ describe('Podium', () => {
 
             emitter.emit('a', 1);
             emitter.emit('b', 1);
-            emitter.emit('a', 1, () => {
+            await emitter.emit('a', 1);
 
-                expect(updates).to.equal(['a', 'b', 'a']);
-                expect(received.message).to.equal('oops');
-                done();
-            });
+            expect(updates).to.equal(['a', 'b', 'a']);
+            expect(received.message).to.equal('oops');
         });
 
-        it('throws when no onPodiumError set when exception thrown in handler', (done) => {
+        it('throws when no onPodiumError set when exception thrown in handler', async () => {
 
             const emitter = new Podium(['a', 'b']);
 
@@ -490,18 +469,13 @@ describe('Podium', () => {
             emitter.on('b', bHandler);
             emitter.emit('a', 1);
 
-            expect(() => {
-
-                emitter.emit('b', 1);
-            }).to.throw('oops');
-
-            done();
+            await expect(emitter.emit('b', 1)).to.reject('oops');
         });
     });
 
     describe('on()', () => {
 
-        it('invokes a handler on every event', (done) => {
+        it('invokes a handler on every event', async () => {
 
             const emitter = new Podium('test');
             let handled = 0;
@@ -512,14 +486,11 @@ describe('Podium', () => {
 
             emitter.emit('test');
             emitter.emit('test');
-            emitter.emit('test', null, () => {
-
-                expect(handled).to.equal(3);
-                done();
-            });
+            await emitter.emit('test', null);
+            expect(handled).to.equal(3);
         });
 
-        it('filters events using tags', (done) => {
+        it('filters events using tags', async () => {
 
             const emitter = new Podium('test');
 
@@ -535,29 +506,26 @@ describe('Podium', () => {
             emitter.emit({ name: 'test', tags: ['d'] }, 3);
             emitter.emit({ name: 'test', tags: ['a'] }, 4);
             emitter.emit({ name: 'test', tags: ['a', 'b'] }, 5);
-            emitter.emit('test', 6, () => {
+            await emitter.emit('test', 6);
 
-                expect(updates).to.equal([
-                    { id: 1, data: 1 },
-                    { id: 2, data: 1 },
-                    { id: 1, data: 2 },
-                    { id: 2, data: 2 },
-                    { id: 3, data: 2 },
-                    { id: 1, data: 3 },
-                    { id: 1, data: 4 },
-                    { id: 2, data: 4 },
-                    { id: 1, data: 5 },
-                    { id: 2, data: 5 },
-                    { id: 3, data: 5 },
-                    { id: 5, data: 5 },
-                    { id: 1, data: 6 }
-                ]);
-
-                done();
-            });
+            expect(updates).to.equal([
+                { id: 1, data: 1 },
+                { id: 2, data: 1 },
+                { id: 1, data: 2 },
+                { id: 2, data: 2 },
+                { id: 3, data: 2 },
+                { id: 1, data: 3 },
+                { id: 1, data: 4 },
+                { id: 2, data: 4 },
+                { id: 1, data: 5 },
+                { id: 2, data: 5 },
+                { id: 3, data: 5 },
+                { id: 5, data: 5 },
+                { id: 1, data: 6 }
+            ]);
         });
 
-        it('filter events using channels', (done) => {
+        it('filter events using channels', async () => {
 
             const emitter = new Podium('test');
 
@@ -571,22 +539,19 @@ describe('Podium', () => {
             emitter.emit({ name: 'test', channel: 'b' }, 2);
             emitter.emit({ name: 'test', channel: 'd' }, 3);
             emitter.emit({ name: 'test', channel: 'a' }, 4);
-            emitter.emit('test', 6, () => {
+            await emitter.emit('test', 6);
 
-                expect(updates).to.equal([
-                    { id: 1, data: 1 },
-                    { id: 2, data: 1 },
-                    { id: 1, data: 2 },
-                    { id: 2, data: 2 },
-                    { id: 3, data: 2 },
-                    { id: 1, data: 3 },
-                    { id: 1, data: 4 },
-                    { id: 2, data: 4 },
-                    { id: 1, data: 6 }
-                ]);
-
-                done();
-            });
+            expect(updates).to.equal([
+                { id: 1, data: 1 },
+                { id: 2, data: 1 },
+                { id: 1, data: 2 },
+                { id: 2, data: 2 },
+                { id: 3, data: 2 },
+                { id: 1, data: 3 },
+                { id: 1, data: 4 },
+                { id: 2, data: 4 },
+                { id: 1, data: 6 }
+            ]);
         });
 
         it('clones data', (done) => {
@@ -620,20 +585,19 @@ describe('Podium', () => {
             emitter.emit({ name: 'test', tags: ['a', 'b'] }, [1, 2, 3]);
         });
 
-        it('errors on unknown channel', (done) => {
+        it('errors on unknown channel', async () => {
 
             const emitter = new Podium({ name: 'test', channels: ['a', 'b'] });
             expect(() => emitter.on('test', Hoek.ignore)).to.not.throw();
             expect(() => emitter.on({ name: 'test', channels: 'a' }, Hoek.ignore)).to.not.throw();
             expect(() => emitter.on({ name: 'test', channels: 'c' }, Hoek.ignore)).to.throw('Unknown event channels c');
             expect(() => emitter.on({ name: 'test', channels: ['c', 'x'] }, Hoek.ignore)).to.throw('Unknown event channels c, x');
-            done();
         });
     });
 
     describe('addListener()', () => {
 
-        it('invokes a handler everytime the subscribed event occurs', (done) => {
+        it('invokes a handler everytime the subscribed event occurs', async () => {
 
             const emitter = new Podium('test');
             let handled = 0;
@@ -644,31 +608,35 @@ describe('Podium', () => {
 
             emitter.emit('test');
             emitter.emit('test');
-            emitter.emit('test', null, () => {
-
-                expect(handled).to.equal(3);
-                done();
-            });
+            await emitter.emit('test', null);
+            expect(handled).to.equal(3);
         });
     });
 
     describe('once()', () => {
 
-        it('invokes a handler once', (done) => {
+        it('invokes a handler once', async () => {
 
             const emitter = new Podium('test');
             let counter = 0;
             emitter.once('test', () => ++counter);
             emitter.emit('test');
             emitter.emit('test');
-            emitter.emit('test', null, () => {
-
-                expect(counter).to.equal(1);
-                done();
-            });
+            await emitter.emit('test', null);
+            expect(counter).to.equal(1);
         });
 
-        it('invokes a handler once with options', (done) => {
+        it('invokes a handler once (promise)', async () => {
+
+            const emitter = new Podium('test');
+            const once = emitter.once('test');
+            emitter.emit('test', 123);
+            await emitter.emit('test', null);
+            const result = await once;
+            expect(result).to.equal(123);
+        });
+
+        it('invokes a handler once with options', async () => {
 
             const emitter = new Podium('test');
             let counter = 0;
@@ -680,17 +648,14 @@ describe('Podium', () => {
 
             emitter.emit('test');
             emitter.emit('test');
-            emitter.emit('test', null, () => {
-
-                expect(counter).to.equal(1);
-                done();
-            });
+            await emitter.emit('test', null);
+            expect(counter).to.equal(1);
         });
     });
 
     describe('removeListener()', () => {
 
-        it('deletes a single handler from being subscribed to an event', (done) => {
+        it('deletes a single handler from being subscribed to an event', async () => {
 
             const emitter = new Podium('test');
             let handled = 0;
@@ -700,21 +665,16 @@ describe('Podium', () => {
             };
             emitter.addListener('test', handler);
 
-            emitter.emit('test', null, () => {
-
-                emitter.removeListener('test', handler);
-                emitter.emit('test', null, () => {
-
-                    expect(handled).to.equal(1);
-                    done();
-                });
-            });
+            await emitter.emit('test', null);
+            emitter.removeListener('test', handler);
+            await emitter.emit('test', null);
+            expect(handled).to.equal(1);
         });
     });
 
     describe('removeAllListeners()', () => {
 
-        it('deletes all handlers from being subscribed to an event', (done) => {
+        it('deletes all handlers from being subscribed to an event', async () => {
 
             const emitter = new Podium('test');
             let handled = 0;
@@ -733,15 +693,10 @@ describe('Podium', () => {
                 handled++;
             });
 
-            emitter.emit('test', null, () => {
-
-                emitter.removeAllListeners('test');
-                emitter.emit('test', null, () => {
-
-                    expect(handled).to.equal(3);
-                    done();
-                });
-            });
+            await emitter.emit('test', null);
+            emitter.removeAllListeners('test');
+            await emitter.emit('test', null);
+            expect(handled).to.equal(3);
         });
     });
 
@@ -768,7 +723,7 @@ describe('Podium', () => {
             source.emit('b', 1);
         });
 
-        it('ignores existing when shared is true', (done) => {
+        it('ignores existing when shared is true', async () => {
 
             const source = new Podium();
             source.registerEvent('a');
@@ -776,11 +731,9 @@ describe('Podium', () => {
 
                 source.registerEvent({ name: 'a', shared: true });
             }).to.not.throw();
-
-            done();
         });
 
-        it('errors on existing event', (done) => {
+        it('errors on existing event', async () => {
 
             const source = new Podium();
             source.registerEvent('a');
@@ -788,14 +741,12 @@ describe('Podium', () => {
 
                 source.registerEvent('a');
             }).to.throw('Event a exists');
-
-            done();
         });
     });
 
     describe('registerPodium()', () => {
 
-        it('combines multiple sources', (done) => {
+        it('combines multiple sources', async () => {
 
             const source1 = new Podium('test');
             const source2 = new Podium('test');
@@ -812,14 +763,11 @@ describe('Podium', () => {
             });
 
             source1.emit('test', 1);
-            source2.emit('test', 1, () => {
-
-                expect(counter).to.equal(2);
-                done();
-            });
+            await source2.emit('test', 1);
+            expect(counter).to.equal(2);
         });
 
-        it('ignores repeated registrations', (done) => {
+        it('ignores repeated registrations', async () => {
 
             const source = new Podium('test');
             const emitter = new Podium();
@@ -829,11 +777,8 @@ describe('Podium', () => {
             let counter = 0;
             emitter.on('test', (data) => ++counter);
 
-            source.emit('test', null, () => {
-
-                expect(counter).to.equal(1);
-                done();
-            });
+            await source.emit('test', null);
+            expect(counter).to.equal(1);
         });
 
         it('combines multiple sources in constructor', (done) => {
@@ -923,7 +868,7 @@ describe('Podium', () => {
             source2.emit('test', 1);
         });
 
-        it('subscribed multiple times', (done) => {
+        it('subscribed multiple times', async () => {
 
             const source1 = new Podium('test');
             const source2 = new Podium('test');
@@ -945,11 +890,8 @@ describe('Podium', () => {
             emitter.registerPodium(source2);
 
             source1.emit('test');
-            source2.emit('test', null, () => {
-
-                expect(counter).to.equal(20);
-                done();
-            });
+            await source2.emit('test', null);
+            expect(counter).to.equal(20);
         });
     });
 });
