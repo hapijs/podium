@@ -342,7 +342,7 @@ describe('Podium', () => {
 
             emitter.emit('test', update);
 
-            const data = await once;
+            const [data] = await once;
             expect(data).to.not.shallow.equal(update);
             expect(data).to.equal(update);
         });
@@ -632,7 +632,7 @@ describe('Podium', () => {
             const once = emitter.once('test');
             emitter.emit('test', 123);
             await emitter.emit('test', null);
-            const result = await once;
+            const [result] = await once;
             expect(result).to.equal(123);
         });
 
