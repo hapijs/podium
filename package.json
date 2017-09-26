@@ -1,7 +1,7 @@
 {
   "name": "podium",
   "description": "Node compatible event emitter with extra features",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "repository": "git://github.com/hapijs/podium",
   "main": "lib/index.js",
   "keywords": [
@@ -12,7 +12,7 @@
     "node": ">=8.0.0"
   },
   "dependencies": {
-    "hoek": "4.x.x",
+    "hoek": "5.x.x",
     "items": "2.x.x",
     "joi": "11.x.x"
   },
