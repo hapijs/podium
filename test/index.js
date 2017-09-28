@@ -700,6 +700,22 @@ describe('Podium', () => {
         });
     });
 
+    describe('validate()', () => {
+
+        it('normalizes events', async () => {
+
+            expect(Podium.validate('a')).to.equal([{ name: 'a' }]);
+        });
+
+        it('errors on invalid event property', async () => {
+
+            expect(() => {
+
+                Podium.validate({ name: 'a', unknown: 'x' });
+            }).to.throw(/Invalid event options/);
+        });
+    });
+
     describe('registerEvent()', () => {
 
         it('combines multiple sources', (done) => {
@@ -741,6 +757,24 @@ describe('Podium', () => {
 
                 source.registerEvent('a');
             }).to.throw('Event a exists');
+        });
+
+        it('errors on invalid event property', async () => {
+
+            const source = new Podium();
+            expect(() => {
+
+                source.registerEvent({ name: 'a', unknown: 'x' });
+            }).to.throw(/Invalid event options/);
+        });
+
+        it('ignores invalid event property', async () => {
+
+            const source = new Podium();
+            expect(() => {
+
+                source.registerEvent({ name: 'a', unknown: 'x' }, { validate: false });
+            }).to.not.throw();
         });
     });
 
