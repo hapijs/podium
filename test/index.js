@@ -111,16 +111,14 @@ describe('Podium', () => {
         const thermometer = new Thermometer();
         const hydrometer = new Hydrometer();
 
-        thermometer.on({ name: 'temperature', block: true }, (temperature, next) => {
+        thermometer.on({ name: 'temperature' }, (temperature) => {
 
             expect(temperature).to.equal(72);
-            next();
         });
 
-        hydrometer.on({ name: 'gravity', block: true }, (gravity, next) => {
+        hydrometer.on({ name: 'gravity' }, (gravity) => {
 
             expect(gravity).to.equal(7);
-            next();
         });
 
         await thermometer.reading(72);
@@ -140,13 +138,13 @@ describe('Podium', () => {
 
             const updates = [];
 
-            const aHandler = (data, next) => {
+            const aHandler = async (data) => {
 
+                await Hoek.wait(50);
                 updates.push({ a: data, id: 1 });
-                setTimeout(next, 50);
             };
 
-            emitter.on({ name: 'a', block: true }, aHandler);
+            emitter.on({ name: 'a' }, aHandler);
 
             const bHandler = (data) => {
 
@@ -171,39 +169,13 @@ describe('Podium', () => {
 
             const updates = [];
 
-            const aHandler = (data, next) => {
+            const aHandler = async (data) => {
 
-                updates.push({ a: data, id: 1 });
-                setTimeout(next, 50);
-            };
-
-            emitter.on({ name: 'a', block: true }, aHandler);
-
-            const bHandler = (data) => {
-
-                updates.push({ b: data, id: 1 });
-            };
-
-            emitter.on('b', bHandler);
-
-            await emitter.emit('a', 1);
-            updates.push('a done');
-            await emitter.emit('b', 1);
-            expect(updates).to.equal([{ a: 1, id: 1 }, 'a done', { b: 1, id: 1 }]);
-        });
-
-        it('times out on blocked handler', async () => {
-
-            const emitter = new Podium(['a', 'b']);
-
-            const updates = [];
-
-            const aHandler = (data, next) => {
-
+                await Hoek.wait(50);
                 updates.push({ a: data, id: 1 });
             };
 
-            emitter.on({ name: 'a', block: 50 }, aHandler);
+            emitter.on({ name: 'a' }, aHandler);
 
             const bHandler = (data) => {
 
@@ -224,17 +196,14 @@ describe('Podium', () => {
 
             const updates = [];
 
-            const aHandler = (data, next) => {
+            const aHandler = async (data, next) => {
 
                 updates.push({ a: data, id: 1 });
-                setTimeout(() => {
-
-                    emitter.removeAllListeners('b');
-                    return next();
-                }, 50);
+                await Hoek.wait(50);
+                emitter.removeAllListeners('b');
             };
 
-            emitter.on({ name: 'a', block: true }, aHandler);
+            emitter.on({ name: 'a' }, aHandler);
 
             const bHandler = (data) => {
 
@@ -410,50 +379,8 @@ describe('Podium', () => {
             await expect(emitter.emit({ name: 'test', channel: 'a' })).to.not.reject();
             await expect(emitter.emit({ name: 'test', channel: 'c' })).to.reject('Unknown c channel');
         });
-    });
 
-    describe('_emit()', () => {
-
-        it('provides secondary emit interface', (done) => {
-
-            const emitter = new Podium(['a']);
-            emitter.on('a', done);
-            emitter._emit('a');
-        });
-    });
-
-    describe('handler()', () => {
-
-        it('recovers from exception thrown in handler', async () => {
-
-            const emitter = new Podium(['a', 'b']);
-
-            let received = null;
-            emitter.onPodiumError = (err) => {
-
-                received = err;
-            };
-
-            const updates = [];
-            const aHandler = (data) => updates.push('a');
-            const bHandler = (data) => {
-
-                updates.push('b');
-                throw new Error('oops');
-            };
-
-            emitter.on('a', aHandler);
-            emitter.on('b', bHandler);
-
-            emitter.emit('a', 1);
-            emitter.emit('b', 1);
-            await emitter.emit('a', 1);
-
-            expect(updates).to.equal(['a', 'b', 'a']);
-            expect(received.message).to.equal('oops');
-        });
-
-        it('throws when no onPodiumError set when exception thrown in handler', async () => {
+        it('rejects when exception thrown in handler', async () => {
 
             const emitter = new Podium(['a', 'b']);
 
@@ -470,6 +397,27 @@ describe('Podium', () => {
             emitter.emit('a', 1);
 
             await expect(emitter.emit('b', 1)).to.reject('oops');
+        });
+
+        it('rejects when exception thrown in handler but process all handlers', async () => {
+
+            const emitter = new Podium(['a', 'b']);
+
+            const updates = [];
+            const handler1 = (data) => updates.push(1);
+            const handler2 = (data) => {
+
+                updates.push(2);
+                throw new Error('oops');
+            };
+
+            emitter.on('a', handler1);
+            emitter.on('a', handler2);
+            emitter.on('a', handler1);
+            emitter.on('a', handler2);
+            emitter.on('a', handler1);
+            await expect(emitter.emit('a', 1)).to.reject('oops');
+            expect(updates).to.equal([1, 2, 1, 2, 1]);
         });
     });
 
@@ -640,10 +588,9 @@ describe('Podium', () => {
 
             const emitter = new Podium('test');
             let counter = 0;
-            emitter.once({ name: 'test', block: true }, (data, next) => {
+            emitter.once({ name: 'test' }, (data) => {
 
                 ++counter;
-                return next();
             });
 
             emitter.emit('test');
