@@ -190,6 +190,30 @@ describe('Podium', () => {
             expect(updates).to.equal([{ a: 1, id: 1 }, 'a done', { b: 1, id: 1 }]);
         });
 
+        it('returns results of callbacks in order added', async () => {
+
+            const emitter = new Podium(['a', 'b']);
+
+            const asyncHandler = async (data) => {
+
+                await Hoek.wait(50);
+                return 'foo';
+            };
+
+            const syncHandler = (data) => {
+
+                return 'bar';
+            };
+
+            emitter.on('a', asyncHandler).on('a', syncHandler);
+
+            let results = await emitter.emit('a', 1);
+            expect(results).to.equal(['foo', 'bar']);
+
+            results = await emitter.emit('b', 1);
+            expect(results).to.be.undefined();
+        });
+
         it('removes handlers while notifications pending', async () => {
 
             const emitter = new Podium(['a', 'b']);
