@@ -598,6 +598,25 @@ describe('Podium', () => {
             await emitter.emit('test', null);
             expect(counter).to.equal(1);
         });
+
+        it('invokes a handler once for matching channel', async () => {
+
+            const emitter = new Podium('test');
+            let counter = 0;
+            emitter.once({ name: 'test', channels: 'x' }, () => ++counter);
+            emitter.emit({ name: 'test', channel: 'y' } );
+            emitter.emit({ name: 'test', channel: 'x' } );
+            await emitter.emit('test', null);
+            expect(counter).to.equal(1);
+        });
+
+        it('does not change criteria', async () => {
+
+            const emitter = new Podium('test');
+            const criteria = { name: 'test' };
+            emitter.once(criteria, Hoek.ignore);
+            expect(criteria).to.only.contain('name');
+        });
     });
 
     describe('removeListener()', () => {
