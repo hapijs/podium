@@ -9,7 +9,7 @@
     "event"
   ],
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=8.9.0"
   },
   "dependencies": {
     "hoek": "5.x.x",
@@ -17,7 +17,8 @@
   },
   "devDependencies": {
     "code": "5.x.x",
-    "lab": "14.x.x"
+    "lab": "15.x.x",
+    "teamwork": "3.x.x"
   },
   "scripts": {
     "test": "lab -a code -t 100 -L",

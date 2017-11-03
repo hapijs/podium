@@ -6,6 +6,7 @@ const Code = require('code');
 const Hoek = require('hoek');
 const Lab = require('lab');
 const Podium = require('..');
+const Teamwork = require('teamwork');
 
 
 // Declare internals
@@ -15,9 +16,7 @@ const internals = {};
 
 // Test shortcuts
 
-const lab = exports.lab = Lab.script();
-const describe = lab.experiment;
-const it = lab.it;
+const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
 
 
@@ -86,7 +85,7 @@ describe('Podium', () => {
                 this._type = type;
             }
 
-            async reading(data) {
+            reading(data) {
 
                 return this.emit(this._type, data);
             }
@@ -316,25 +315,23 @@ describe('Podium', () => {
             expect(data).to.equal(update);
         });
 
-        it('spreads data', (done) => {
+        it('spreads data', () => {
 
             const emitter = new Podium({ name: 'test', spread: true });
             emitter.on('test', (a, b, c) => {
 
                 expect({ a, b, c }).to.equal({ a: 1, b: 2, c: 3 });
-                done();
             });
 
             emitter.emit('test', [1, 2, 3]);
         });
 
-        it('spreads data (function)', (done) => {
+        it('spreads data (function)', () => {
 
             const emitter = new Podium({ name: 'test', spread: true });
             emitter.on('test', (a, b, c) => {
 
                 expect({ a, b, c }).to.equal({ a: 1, b: 2, c: 3 });
-                done();
             });
 
             emitter.emit('test', () => [1, 2, 3]);
@@ -348,25 +345,23 @@ describe('Podium', () => {
             expect(await once).to.equal([1, 2, 3]);
         });
 
-        it('adds tags', (done) => {
+        it('adds tags', () => {
 
             const emitter = new Podium({ name: 'test', tags: true });
             emitter.on('test', (data, tags) => {
 
                 expect({ data, tags }).to.equal({ data: [1, 2, 3], tags: { a: true, b: true } });
-                done();
             });
 
             emitter.emit({ name: 'test', tags: ['a', 'b'] }, [1, 2, 3]);
         });
 
-        it('adds tags (spread)', (done) => {
+        it('adds tags (spread)', () => {
 
             const emitter = new Podium({ name: 'test', tags: true, spread: true });
             emitter.on('test', (a, b, c, tags) => {
 
                 expect({ a, b, c, tags }).to.equal({ a: 1, b: 2, c: 3, tags: { a: true, b: true } });
-                done();
             });
 
             emitter.emit({ name: 'test', tags: ['a', 'b'] }, [1, 2, 3]);
@@ -502,7 +497,7 @@ describe('Podium', () => {
             ]);
         });
 
-        it('clones data', (done) => {
+        it('clones data', () => {
 
             const update = { a: 1 };
 
@@ -511,13 +506,12 @@ describe('Podium', () => {
 
                 expect(data).to.not.shallow.equal(update);
                 expect(data).to.equal(update);
-                done();
             });
 
             emitter.emit('test', update);
         });
 
-        it('disables tags and spread', (done) => {
+        it('disables tags and spread', () => {
 
             const emitter = new Podium({ name: 'test', tags: true, spread: true });
 
@@ -525,7 +519,6 @@ describe('Podium', () => {
 
                 expect(arguments.length).to.equal(1);
                 expect(data).to.equal([1, 2, 3]);
-                done();
             };
 
             emitter.on({ name: 'test', tags: false, spread: false }, handler);
@@ -533,7 +526,7 @@ describe('Podium', () => {
             emitter.emit({ name: 'test', tags: ['a', 'b'] }, [1, 2, 3]);
         });
 
-        it('errors on unknown channel', async () => {
+        it('errors on unknown channel', () => {
 
             const emitter = new Podium({ name: 'test', channels: ['a', 'b'] });
             expect(() => emitter.on('test', Hoek.ignore)).to.not.throw();
@@ -610,7 +603,7 @@ describe('Podium', () => {
             expect(counter).to.equal(1);
         });
 
-        it('does not change criteria', async () => {
+        it('does not change criteria', () => {
 
             const emitter = new Podium('test');
             const criteria = { name: 'test' };
@@ -668,12 +661,12 @@ describe('Podium', () => {
 
     describe('validate()', () => {
 
-        it('normalizes events', async () => {
+        it('normalizes events', () => {
 
             expect(Podium.validate('a')).to.equal([{ name: 'a' }]);
         });
 
-        it('errors on invalid event property', async () => {
+        it('errors on invalid event property', () => {
 
             expect(() => {
 
@@ -684,7 +677,7 @@ describe('Podium', () => {
 
     describe('registerEvent()', () => {
 
-        it('combines multiple sources', (done) => {
+        it('combines multiple sources', async () => {
 
             const source = new Podium();
             const emitter = new Podium('a');
@@ -692,20 +685,19 @@ describe('Podium', () => {
 
             source.registerEvent(['a', 'b', null]);
 
-            let counter = 0;
+            const team = new Teamwork({ meetings: 2 });
             emitter.on('b', (data) => {
 
                 expect(data).to.equal(1);
-                if (++counter === 2) {
-                    done();
-                }
+                team.attend();
             });
 
             source.emit('b', 1);
             source.emit('b', 1);
+            await team.work;
         });
 
-        it('ignores existing when shared is true', async () => {
+        it('ignores existing when shared is true', () => {
 
             const source = new Podium();
             source.registerEvent('a');
@@ -715,7 +707,7 @@ describe('Podium', () => {
             }).to.not.throw();
         });
 
-        it('errors on existing event', async () => {
+        it('errors on existing event', () => {
 
             const source = new Podium();
             source.registerEvent('a');
@@ -725,7 +717,7 @@ describe('Podium', () => {
             }).to.throw('Event a exists');
         });
 
-        it('errors on invalid event property', async () => {
+        it('errors on invalid event property', () => {
 
             const source = new Podium();
             expect(() => {
@@ -734,7 +726,7 @@ describe('Podium', () => {
             }).to.throw(/Invalid event options/);
         });
 
-        it('ignores invalid event property', async () => {
+        it('ignores invalid event property', () => {
 
             const source = new Podium();
             expect(() => {
@@ -781,27 +773,26 @@ describe('Podium', () => {
             expect(counter).to.equal(1);
         });
 
-        it('combines multiple sources in constructor', (done) => {
+        it('combines multiple sources in constructor', async () => {
 
             const source1 = new Podium('test');
             const source2 = new Podium('test');
 
             const emitter = new Podium([source1, source2]);
 
-            let counter = 0;
+            const team = new Teamwork({ meetings: 2 });
             emitter.on('test', (data) => {
 
                 expect(data).to.equal(1);
-                if (++counter === 2) {
-                    done();
-                }
+                team.attend();
             });
 
             source1.emit('test', 1);
             source2.emit('test', 1);
+            await team.work;
         });
 
-        it('combines multiple sources in constructor and after', (done) => {
+        it('combines multiple sources in constructor and after', async () => {
 
             const source1 = new Podium('test');
             const source2 = new Podium('test');
@@ -809,20 +800,19 @@ describe('Podium', () => {
             const emitter = new Podium(source1);
             emitter.registerPodium(source2);
 
-            let counter = 0;
+            const team = new Teamwork({ meetings: 2 });
             emitter.on('test', (data) => {
 
                 expect(data).to.equal(1);
-                if (++counter === 2) {
-                    done();
-                }
+                team.attend();
             });
 
             source1.emit('test', 1);
             source2.emit('test', 1);
+            await team.work;
         });
 
-        it('combines multiple sources with own emit', (done) => {
+        it('combines multiple sources with own emit', async () => {
 
             const source1 = new Podium('test');
             const source2 = new Podium('test');
@@ -831,34 +821,31 @@ describe('Podium', () => {
             emitter.registerPodium(source1);
             emitter.registerPodium(source2);
 
-            let counter = 0;
+            const team = new Teamwork({ meetings: 3 });
             emitter.on('test', (data) => {
 
                 expect(data).to.equal(1);
-                if (++counter === 3) {
-                    done();
-                }
+                team.attend();
             });
 
             source1.emit('test', 1);
             emitter.emit('test', 1);
             source2.emit('test', 1);
+            await team.work;
         });
 
-        it('adds sources after listeners', (done) => {
+        it('adds sources after listeners', async () => {
 
             const source1 = new Podium('test');
             const source2 = new Podium('test');
 
             const emitter = new Podium('test');
 
-            let counter = 0;
+            const team = new Teamwork({ meetings: 2 });
             emitter.on('test', (data) => {
 
                 expect(data).to.equal(1);
-                if (++counter === 2) {
-                    done();
-                }
+                team.attend();
             });
 
             emitter.registerPodium(source1);
@@ -866,6 +853,7 @@ describe('Podium', () => {
 
             source1.emit('test', 1);
             source2.emit('test', 1);
+            await team.work;
         });
 
         it('subscribed multiple times', async () => {
