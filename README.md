@@ -6,7 +6,7 @@ Node (semi) compatible event emitter with extra features.
 arguments spreading, and other features useful when building large scale applications.
 While node's native [`EventEmitter`](https://nodejs.org/dist/latest-v6.x/docs/api/events.html#events_class_eventemitter) is strictly focused on maximum performance,
 it lacks many features that do not belong in the core implementation. **podium** is not restricted by
-node's performance requirement as it is designed for application layer needs where it's overhead
+node's performance requirement as it is designed for application layer needs where its overhead
 is largely insignificant as implementing these features will have similar cost on top of the native emitter.
 
 [![Build Status](https://secure.travis-ci.org/hapijs/podium.svg)](http://travis-ci.org/hapijs/podium)
@@ -48,7 +48,7 @@ podiumObject.registerEvent({
 
 ## `podium.on(criteria, listener)`
 
-Subscribe a handler to an event. Handler can be seen a function which will be called when the event occurs.
+Subscribe a handler to an event. Handler can be seen as a function which will be called when the event occurs.
 
 ```javascript
 podiumObject.registerEvent('event1');
@@ -74,8 +74,8 @@ podiumObject.addListener('event1', listener1);
 
 ## `podium.once(criteria, listener)`
 
-Same as calling podium.on() with the count option set to 1. Whenever we call emit(), `listener1` will get fired
-but also get removed, so that it won't get fired on call to emit().
+Same as calling `podium.on()` with the count option set to 1. Whenever we call `emit()`, `listener1` will get fired
+but also get removed, so that it won't get fired on call to `emit()`.
 
 ```javascript
 podiumObject.once('event1', listener1);
@@ -121,7 +121,7 @@ else{
 
 ## `podium.registerPodium(podiums)`
 
-Registers a podium object(emitter) to another podium object(source). Whenever any event gets registered on `emitterObject` it gets registered on `sourceObject` as well. But reverse is not true.
+Registers a podium object(emitter) to another podium object(source). Whenever any event gets registered on `emitterObject` it gets registered on `sourceObject` as well. But the reverse is not true.
 
 ```javascript
 const source1Object = new Podium('test');
