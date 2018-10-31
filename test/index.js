@@ -129,8 +129,7 @@ describe('Podium', () => {
         it('reuses podium events to decorate a new one', async () => {
 
             const source = new Podium(['a', 'b']);
-            const Emitter = function () { };
-            Hoek.inherits(Emitter, Podium);
+            const Emitter = class extends Podium { };
 
             const emitter = new Emitter();
             Podium.decorate(emitter, source);
@@ -597,8 +596,8 @@ describe('Podium', () => {
             const emitter = new Podium('test');
             let counter = 0;
             emitter.once({ name: 'test', channels: 'x' }, () => ++counter);
-            emitter.emit({ name: 'test', channel: 'y' } );
-            emitter.emit({ name: 'test', channel: 'x' } );
+            emitter.emit({ name: 'test', channel: 'y' });
+            emitter.emit({ name: 'test', channel: 'x' });
             await emitter.emit('test', null);
             expect(counter).to.equal(1);
         });
@@ -622,6 +621,7 @@ describe('Podium', () => {
 
                 handled++;
             };
+
             emitter.addListener('test', handler);
 
             await emitter.emit('test', null);
