@@ -1,7 +1,7 @@
 {
   "name": "podium",
   "description": "Node compatible event emitter with extra features",
-  "version": "3.1.4",
+  "version": "3.1.5",
   "repository": "git://github.com/hapijs/podium",
   "main": "lib/index.js",
   "keywords": [
