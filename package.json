@@ -8,9 +8,6 @@
     "emitter",
     "event"
   ],
-  "engines": {
-    "node": ">=8.12.0"
-  },
   "dependencies": {
     "hoek": "6.x.x",
     "joi": "14.x.x"
