@@ -432,6 +432,23 @@ describe('Podium', () => {
             expect(handled).to.equal(3);
         });
 
+        it('invokes a handler with context', async () => {
+
+            const emitter = new Podium('test');
+            const context = { count: 0 };
+            const handler = function () {
+
+                ++this.count;
+            };
+
+            emitter.on('test', handler, context);
+
+            emitter.emit('test');
+            emitter.emit('test');
+            await emitter.emit('test', null);
+            expect(context.count).to.equal(3);
+        });
+
         it('filters events using tags', async () => {
 
             const emitter = new Podium('test');
