@@ -8,21 +8,18 @@
     "emitter",
     "event"
   ],
-  "engines": {
-    "node": ">=4.0.0"
-  },
   "dependencies": {
-    "hoek": "4.x.x",
-    "items": "2.x.x",
-    "joi": "10.x.x"
+    "@commercial/hoek": "4.x.x",
+    "@commercial/items": "2.x.x",
+    "@commercial/joi": "12.x.x"
   },
   "devDependencies": {
     "code": "4.x.x",
     "lab": "14.x.x"
   },
   "scripts": {
-    "test": "lab -a code -t 100 -L",
-    "test-cov-html": "lab -r html -o coverage.html -a code -L"
+    "test": "lab -a code -t 100 -L -l",
+    "test-cov-html": "lab -r html -o coverage.html -a code -L -l"
   },
-  "license": "BSD-3-Clause"
+  "license": "SEE LICENSE IN LICENSE.md"
 }

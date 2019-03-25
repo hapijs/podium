@@ -1,19 +1,13 @@
 'use strict';
 
-// Load modules
-
 const Code = require('code');
-const Hoek = require('hoek');
+const Hoek = require('@commercial/hoek');
 const Lab = require('lab');
 const Podium = require('..');
 
 
-// Declare internals
-
 const internals = {};
 
-
-// Test shortcuts
 
 const lab = exports.lab = Lab.script();
 const describe = lab.experiment;
