@@ -4,22 +4,19 @@
   "version": "3.2.0",
   "repository": "git://github.com/hapijs/podium",
   "main": "lib/index.js",
-  "keywords": [
-    "emitter",
-    "event"
-  ],
+  "keywords": ["emitter", "event"],
   "dependencies": {
-    "hoek": "6.x.x",
-    "joi": "14.x.x"
+    "@hapi/hoek": "6.x.x",
+    "@hapi/joi": "14.x.x"
   },
   "devDependencies": {
-    "code": "5.x.x",
-    "lab": "17.x.x",
-    "teamwork": "3.x.x"
+    "@hapi/code": "5.x.x",
+    "@hapi/lab": "18.x.x",
+    "@hapi/teamwork": "3.x.x"
   },
   "scripts": {
-    "test": "lab -a code -t 100 -L",
-    "test-cov-html": "lab -r html -o coverage.html -a code -L"
+    "test": "lab -a @hapi/code -t 100 -L",
+    "test-cov-html": "lab -r html -o coverage.html -a @hapi/code -L"
   },
   "license": "BSD-3-Clause"
 }

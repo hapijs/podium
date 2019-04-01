@@ -1,20 +1,14 @@
 'use strict';
 
-// Load modules
-
-const Code = require('code');
-const Hoek = require('hoek');
-const Lab = require('lab');
+const Code = require('@hapi/code');
+const Hoek = require('@hapi/hoek');
+const Lab = require('@hapi/lab');
 const Podium = require('..');
-const Teamwork = require('teamwork');
+const Teamwork = require('@hapi/teamwork');
 
-
-// Declare internals
 
 const internals = {};
 
-
-// Test shortcuts
 
 const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
@@ -364,6 +358,17 @@ describe('Podium', () => {
             });
 
             emitter.emit({ name: 'test', tags: ['a', 'b'] }, [1, 2, 3]);
+        });
+
+        it('send no tags on channel with tags enabled', () => {
+
+            const emitter = new Podium({ name: 'test', tags: true });
+            emitter.on('test', (data, tags) => {
+
+                expect({ data, tags }).to.equal({ data: [1, 2, 3], tags: undefined });
+            });
+
+            emitter.emit({ name: 'test' }, [1, 2, 3]);
         });
 
         it('errors on unknown channel', async () => {
