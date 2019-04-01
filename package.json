@@ -1,10 +1,13 @@
 {
   "name": "podium",
   "description": "Node compatible event emitter with extra features",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "repository": "git://github.com/hapijs/podium",
   "main": "lib/index.js",
-  "keywords": ["emitter", "event"],
+  "keywords": [
+    "emitter",
+    "event"
+  ],
   "dependencies": {
     "@hapi/hoek": "6.x.x",
     "@hapi/joi": "14.x.x"
