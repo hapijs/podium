@@ -1,5 +1,5 @@
 {
-  "name": "podium",
+  "name": "@hapi/podium",
   "description": "Node compatible event emitter with extra features",
   "version": "3.3.0",
   "repository": "git://github.com/hapijs/podium",
@@ -10,7 +10,7 @@
   ],
   "dependencies": {
     "@hapi/hoek": "6.x.x",
-    "@hapi/joi": "14.x.x"
+    "@hapi/joi": "15.x.x"
   },
   "devDependencies": {
     "@hapi/code": "5.x.x",
