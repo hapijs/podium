@@ -1,3 +1,5 @@
+<a href="http://hapijs.com"><img src="https://github.com/hapijs/assets/blob/master/images/family.svg" width="180px" align="right" /></a>
+
 # podium
 
 Node (semi) compatible event emitter with extra features.
@@ -10,8 +12,6 @@ node's performance requirement as it is designed for application layer needs whe
 is largely insignificant as implementing these features will have similar cost on top of the native emitter.
 
 [![Build Status](https://secure.travis-ci.org/hapijs/podium.svg)](http://travis-ci.org/hapijs/podium)
-
-Lead Maintainer - [Eran Hammer](https://github.com/hueniverse)
 
 ## `new Podium(events)`
 
