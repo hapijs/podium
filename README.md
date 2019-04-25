@@ -18,7 +18,7 @@ is largely insignificant as implementing these features will have similar cost o
 This creates a new event emitter.
 
 ```javascript
-const Podium = require('podium');
+const Podium = require('@hapi/podium');
 const podiumObject = new Podium(); // new emitter
 const podiumObject2 = new Podium('event1');// creates new event and calls registerEvent()
 ```
@@ -150,7 +150,7 @@ emitterObject.emit('test', 2);
 ### <a name="channels"></a>`channels`
 
 ```js
-const Podium = require('podium');
+const Podium = require('@hapi/podium');
 const podiumObject = new Podium();
 
 podiumObject.registerEvent([
@@ -207,7 +207,7 @@ podiumObject.emit({
 ### <a name="clone"></a>`clone`
 
 ```js
-const Podium = require('podium');
+const Podium = require('@hapi/podium');
 const podiumObject = new Podium();
 
 podiumObject.registerEvent([
@@ -281,7 +281,7 @@ console.log('after event2, ch1: ', arr);
 ### <a name="spread"></a>`spread`
 
 ```js
-const Podium = require('podium');
+const Podium = require('@hapi/podium');
 const podiumObject = new Podium();
 
 podiumObject.registerEvent([
@@ -354,7 +354,7 @@ console.log('after event2, ch1: ', arr);
 ### <a name="shared"></a>`shared`
 
 ```js
-const Podium = require('podium');
+const Podium = require('@hapi/podium');
 const podiumObject = new Podium();
 
 podiumObject.registerEvent([
@@ -399,7 +399,7 @@ podiumObject.emit({
 ### <a name="tagFilter"></a>`tag-filter`
 
 ```js
-const Podium = require('podium');
+const Podium = require('@hapi/podium');
 const emitter = new Podium('test');
 
 const updates = [];
@@ -424,7 +424,7 @@ emitter.emit('test', 6, () => {
 ### <a name="count"></a>`count`
 
 ```js
-const Podium = require('podium');
+const Podium = require('@hapi/podium');
 const podiumObject = new Podium();
 
 podiumObject.registerEvent('event1');
