@@ -13,31 +13,76 @@ is largely insignificant as implementing these features will have similar cost o
 
 [![Build Status](https://secure.travis-ci.org/hapijs/podium.svg)](http://travis-ci.org/hapijs/podium)
 
-## `new Podium(events)`
+## API
 
-This creates a new event emitter.
+[**API documentation**](https://github.com/hapijs/podium/blob/master/API.md).
 
-```javascript
+## Example
+
+```js
 const Podium = require('@hapi/podium');
-const podiumObject = new Podium(); // new emitter
-const podiumObject2 = new Podium('event1');// creates new event and calls registerEvent()
+
+const emitter = new Podium()
+
+const context = { count: 0 }
+
+emitter.registerEvent({
+    name: 'event',
+    channels: ['ch1', 'ch2']
+})
+
+const handler1 = function () {
+
+    ++this.count
+    console.log(this.count)
+};
+
+const handler2 = function () {
+
+    this.count = this.count + 2
+    console.log(this.count)
+}
+
+emitter.on({
+    name: 'event',
+    channels: ['ch1']
+}, handler1, context);
+
+emitter.on({
+    name: 'event',
+    channels: ['ch2']
+}, handler2, context)
+
+emitter.emit({
+    name: 'event',
+    channel: 'ch1'
+})
+
+emitter.emit({
+    name: 'event',
+    channel: 'ch2'
+})
+
+emitter.hasListeners('event') // true
+
+emitter.removeAllListeners('event') // Removes all listeners subscribed to 'event'
 ```
 
-## `podium.registerEvent(events)`
+The above example uses podium's channel event parameter to restrict the event update to only the specified channel. 
 
-Registers an event `event1` to emitter.
+First you register the event by calling the `registerEvent()` method. Here, you name the event `'event'` and give it channels `['ch1', 'ch2']`.
 
-```javascript
-podiumObject.registerEvent('event1');
+Next you specify your listener handlers. These will be called when an event is updated. Here you make use of podium's listener context, data that you can bind to your listener handlers. 
+In this case, `handler1` will add 1 to count, which is specified as `{ count: 0 }`, while `handler2` will add 2.
 
-//with optional parameters
-podiumObject.registerEvent({
-        name: 'event1',
-        shared: true
- });
-```
+Next you call the `on()` method to subscribe a handler to an event. You use the same event name, but two different channels. `'ch1'` will use handler1 and `'ch2'` will use handler2.
 
-### `Using different parameters`
+Lastly, you use `emit()` to emit and event update to the subscribers. 
+
+
+## <a name='parameters'></a> `Using different parameters`
+
+Along with channels, podium allows you to specify other event parameters. Below are more examples:
 
 - [`channels`](#channels)
 - [`clone`](#clone)
@@ -45,107 +90,6 @@ podiumObject.registerEvent({
 - [`shared`](#shared)
 - [`tag-filter`](#tagFilter)
 - [`count`](#count)
-
-## `podium.on(criteria, listener)`
-
-Subscribe a handler to an event. Handler can be seen as a function which will be called when the event occurs.
-
-```javascript
-podiumObject.registerEvent('event1');
-podiumObject.on('event1', function(update) { // Way 1
-
-    console.log('inside autonomous listener without name! data:', update);
-});
-
-const listener1 = function() { // normal function object
-
-    console.log('listener1 called');
-}
-podiumObject.on('event1', listener1); // Way 2
-```
-
-## `podium.addListener(criteria, listener)`
-
-Same as `podium.on()`.
-
-```javascript
-podiumObject.addListener('event1', listener1);
-```
-
-## `podium.once(criteria, listener)`
-
-Same as calling `podium.on()` with the count option set to 1. Whenever we call `emit()`, `listener1` will get fired
-but also get removed, so that it won't get fired on call to `emit()`.
-
-```javascript
-podiumObject.once('event1', listener1);
-```
-
-## `podium.emit(criteria, data, [callback])`
-
-Emits an event update to all the subscribed listeners.
-
-```javascript
-podiumObject.emit('event1', 'here we can send any data to listeners.');
-```
-
-## `podium.removeListener(name, listener)`
-
-Removes all listeners subscribed to a given event name matching the provided listener method.
-
-```javascript
-podiumObject.removeListener('event1', listener1);
-```
-
-## `podium.removeAllListeners(name)`
-
-Removes all listeners subscribed to a given event name.
-
-```javascript
-podiumObject.removeAllListeners('event1');
-```
-
-## `podium.hasListeners(name)`
-
-Returns whether an event has any listeners subscribed.
-
-```javascript
-if (podiumObject.hasListeners('event1')){
-    console.log('this event has some listeners left');
-}
-else{
-    console.log('this event has no listeners');
-}
-
-```
-
-## `podium.registerPodium(podiums)`
-
-Registers a podium object(emitter) to another podium object(source). Whenever any event gets registered on `emitterObject` it gets registered on `sourceObject` as well. But the reverse is not true.
-
-```javascript
-const source1Object = new Podium('test');
-const source2Object = new Podium('test');
-
-const emitterObject = new Podium(source1Object);
-emitterObject.registerPodium(source2Object);
-
-const listener1 = function(){ // normal function
-
-    console.log('listener1 called');
-}
-const listener2 = function(){ // another normal function
-
-    console.log('listener1 called');
-}
-emitterObject.on('test', listener1); // listener1 gets registered on emitterObject, source1Object,source2Object events
-source1Object.on('test', listener2); // listener2 gets registered on source1Object events only
-
-source1Object.emit('test', 1); // runs all registered events
-emitterObject.emit('test', 2);
-```
-
-# Cookbook
 
 ### <a name="channels"></a>`channels`
 
@@ -193,14 +137,6 @@ var arr = [0, 1, 2, 3, 4, 4, 5];
 podiumObject.emit({
     name: 'event1',
     channel: 'ch3'
-}, arr, function(err){
-
-    if (err){
-        console.log('callback error');
-    }
-    else{
-        console.log('callback returned true!');
-    }
 });
 ```
 
@@ -250,14 +186,6 @@ console.log('initially: ', arr);
 podiumObject.emit({
     name: 'event1',
     channel: 'ch1'
-}, arr, function(err){
-
-    if (err){
-        console.log('callback 1 error');
-    }
-    else {
-        console.log('callback 1 returned true!');
-    }
 });
 
 console.log('after event1, ch1: ', arr);
@@ -265,14 +193,6 @@ console.log('after event1, ch1: ', arr);
 podiumObject.emit({
     name: 'event2',
     channel: 'ch1'
-}, arr, function(err){
-
-    if (err){
-        console.log('callback 2 error');
-    }
-    else {
-        console.log('callback 2 returned true!');
-    }
 });
 
 console.log('after event2, ch1: ', arr);
@@ -324,14 +244,6 @@ console.log('initially: ', arr);
 podiumObject.emit({
     name: 'event1',
     channel: 'ch1'
-}, arr, function(err){
-
-    if (err){
-        console.log('callback 1 error');
-    }
-    else {
-        console.log('callback 1 returned true!');
-    }
 });
 
 console.log('after event1, ch1: ', arr);
@@ -339,14 +251,6 @@ console.log('after event1, ch1: ', arr);
 podiumObject.emit({
     name: 'event2',
     channel: 'ch1'
-}, arr, function(err){
-
-    if (err){
-        console.log('callback 2 error');
-    }
-    else {
-        console.log('callback 2 returned true!');
-    }
 });
 console.log('after event2, ch1: ', arr);
 ```
@@ -385,14 +289,6 @@ var arr = [0, 1, 2, 3, 4, 4, 5];
 podiumObject.emit({
     name: 'event1',
     channel: 'ch1'
-}, arr, function(err){
-
-    if (err){
-        console.log('callback 1 error');
-    }
-    else {
-        console.log('callback 1 returned true!');
-    }
 });
 ```
 
@@ -444,6 +340,4 @@ podiumObject.emit('event1', 'emit 2');
 podiumObject.emit('event1', 'emit 3'); // this wont call listener1
 ```
 
-## API
 
-The full API is available in the [API documentation](https://github.com/hapijs/podium/blob/master/API.md).
