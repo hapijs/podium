@@ -1,12 +1,12 @@
-# 1.0.x API Reference
+# 3.4.x API Reference
 
 - [`new Podium(events)`](#podiumnew-podiumevents)
 - [`podium.registerEvent(events)`](#podiumregistereventevents)
 - [`podium.registerPodium(podiums)`](#podiumregisterpodiumpodiums)
-- [`podium.emit(criteria, data, [callback])`](#podiumemitcriteria-data-callback)
-- [`podium.on(criteria, listener)`](#podiumoncriteria-listener)
-- [`podium.addListener(criteria, listener)`](#podiumaddlistenercriteria-listener)
-- [`podium.once(criteria, listener)`](#podiumoncecriteria-listener)
+- [`podium.emit(criteria, data)`](#podiumemitcriteria-data-callback)
+- [`podium.on(criteria, listener, context)`](#podiumoncriteria-listener)
+- [`podium.addListener(criteria, listener, context)`](#podiumaddlistenercriteria-listener)
+- [`podium.once(criteria, listener, context)`](#podiumoncecriteria-listener)
 - [`podium.removeListener(name, listener)`](#podiumremoveListenername-listener)
 - [`podium.removeAllListeners(name)`](#podiumremoveAllListenersname)
 - [`podium.hasListeners(name)`](#podiumhasListenersname)
@@ -22,7 +22,7 @@ Returns a `Podium` object.
 ## `podium.registerEvent(events)`
 
 Register the specified events and their optional configuration. Events must be registered before
-they can be emitted or subscribed to. This is done to detect event name mispelling and invalid
+they can be emitted or subscribed to. This is done to detect event name misspelling and invalid
 event activities. The `events` argument can be:
 - an event **string**.
 - an event options object with the following optional keys (unless noted otherwise):
@@ -45,7 +45,7 @@ event activities. The `events` argument can be:
     - `shared` - if `true`, the same event `name` can be registered multiple times where the second
       registration is ignored. **Note that if the registration config is changed between registrations,
       only the first configuration is used. Defaults to `false` (a duplicate registration will throw an
-      error).**
+      error).** For detailed examples of event parameters [see here](README.md#parameters)
 - a `Podium` object which is passed to [`podium.registerPodium()`](#podiumregisterpodiumpodiums).
 - an array containing any of the above.
 
@@ -58,7 +58,7 @@ source emitter is passed to any subscriber of the current emitter) where:
 Note that any events registered with a source emitter are automatically added to the current emitter.
 If the events are already registered, they are left as-is.
 
-## `podium.emit(criteria, data, [callback])`
+## `podium.emit(criteria, data)`
 
 Emits an event update to all the subscribed listeners where:
 - `criteria` - the event update criteria which must be one of:
@@ -68,10 +68,8 @@ Emits an event update to all the subscribed listeners where:
         - `channel` - the channel name string.
         - `tags` - a tag string or array of tag strings.
 - `data` - the value emitted to the subscribers.
-- `callback` - an **optional** callback method invoked when all subscribers have been notified using the
-  signature `function()`.
 
-## `podium.on(criteria, listener)`
+## `podium.on(criteria, listener, context)`
 
 Subscribe a handler to an event where:
 - `criteria` - the subscription criteria which must be one of the following:
@@ -113,12 +111,13 @@ Subscribe a handler to an event where:
           (which defaults to `false`).**
 - `listener` - the handler method set to receive event updates. The function signature depends
   on the `block`, `spread`, and `tags` options.
+- `context` - an **object** that binds to the listener handler.
 
-## `podium.addListener(criteria, listener)`
+## `podium.addListener(criteria, listener, context)`
 
 Same as [`podium.on()`](#podiumoncriteria-listener).
 
-## `podium.once(criteria, listener)`
+## `podium.once(criteria, listener, context)`
 
 Same as calling [`podium.on()`](#podiumoncriteria-listener) with the `count` option set to `1`.
 
