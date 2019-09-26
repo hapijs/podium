@@ -15,7 +15,7 @@ is largely insignificant as implementing these features will have similar cost o
 
 ## API
 
-[***API documentation***](https://github.com/hapijs/podium/blob/master/API.md).
+[**API documentation**](https://github.com/hapijs/podium/blob/master/API.md).
 
 ## Example
 
