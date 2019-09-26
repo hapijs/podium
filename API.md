@@ -1,16 +1,3 @@
-# 1.0.x API Reference
-
-- [`new Podium(events)`](#podiumnew-podiumevents)
-- [`podium.registerEvent(events)`](#podiumregistereventevents)
-- [`podium.registerPodium(podiums)`](#podiumregisterpodiumpodiums)
-- [`podium.emit(criteria, data, [callback])`](#podiumemitcriteria-data-callback)
-- [`podium.on(criteria, listener)`](#podiumoncriteria-listener)
-- [`podium.addListener(criteria, listener)`](#podiumaddlistenercriteria-listener)
-- [`podium.once(criteria, listener)`](#podiumoncecriteria-listener)
-- [`podium.removeListener(name, listener)`](#podiumremoveListenername-listener)
-- [`podium.removeAllListeners(name)`](#podiumremoveAllListenersname)
-- [`podium.hasListeners(name)`](#podiumhasListenersname)
-
 
 ## `new Podium(events)`
 
