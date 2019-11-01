@@ -374,6 +374,8 @@ describe('Podium', () => {
         it('errors on unknown channel', async () => {
 
             const emitter = new Podium({ name: 'test', channels: ['a', 'b'] });
+            emitter.on('test', Hoek.ignore);
+
             await expect(emitter.emit('test')).to.not.reject();
             await expect(emitter.emit({ name: 'test', channel: 'a' })).to.not.reject();
             await expect(emitter.emit({ name: 'test', channel: 'c' })).to.reject('Unknown c channel');
