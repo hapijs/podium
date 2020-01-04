@@ -709,7 +709,7 @@ describe('Podium', () => {
 
             source.registerEvent(['a', 'b', null]);
 
-            const team = new Teamwork({ meetings: 2 });
+            const team = new Teamwork.Team({ meetings: 2 });
             emitter.on('b', (data) => {
 
                 expect(data).to.equal(1);
@@ -804,7 +804,7 @@ describe('Podium', () => {
 
             const emitter = new Podium([source1, source2]);
 
-            const team = new Teamwork({ meetings: 2 });
+            const team = new Teamwork.Team({ meetings: 2 });
             emitter.on('test', (data) => {
 
                 expect(data).to.equal(1);
@@ -824,7 +824,7 @@ describe('Podium', () => {
             const emitter = new Podium(source1);
             emitter.registerPodium(source2);
 
-            const team = new Teamwork({ meetings: 2 });
+            const team = new Teamwork.Team({ meetings: 2 });
             emitter.on('test', (data) => {
 
                 expect(data).to.equal(1);
@@ -845,7 +845,7 @@ describe('Podium', () => {
             emitter.registerPodium(source1);
             emitter.registerPodium(source2);
 
-            const team = new Teamwork({ meetings: 3 });
+            const team = new Teamwork.Team({ meetings: 3 });
             emitter.on('test', (data) => {
 
                 expect(data).to.equal(1);
@@ -865,7 +865,7 @@ describe('Podium', () => {
 
             const emitter = new Podium('test');
 
-            const team = new Teamwork({ meetings: 2 });
+            const team = new Teamwork.Team({ meetings: 2 });
             emitter.on('test', (data) => {
 
                 expect(data).to.equal(1);
