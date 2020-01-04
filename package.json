@@ -1,7 +1,7 @@
 {
   "name": "@hapi/podium",
   "description": "Node compatible event emitter with extra features",
-  "version": "3.4.3",
+  "version": "4.0.0",
   "repository": "git://github.com/hapijs/podium",
   "main": "lib/index.js",
   "files": [
