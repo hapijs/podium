@@ -635,6 +635,21 @@ describe('Podium', () => {
         });
     });
 
+    describe('few()', () => {
+
+        it('collects multiple events', async () => {
+
+            const emitter = new Podium('test');
+            const few = emitter.few({ name: 'test', count: 3 });
+            emitter.emit('test', 123);
+            emitter.emit('test', 123);
+            emitter.emit('test', 123);
+            await emitter.emit('test', null);
+            const result = await few;
+            expect(result).to.equal([[123], [123], [123]]);
+        });
+    });
+
     describe('removeListener()', () => {
 
         it('deletes a single handler from being subscribed to an event', async () => {
