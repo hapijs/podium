@@ -1,25 +1,28 @@
 {
-  "name": "@hapi/podium",
+  "name": "@commerical/podium",
   "description": "Node compatible event emitter with extra features",
   "version": "3.4.3",
   "repository": "git://github.com/hapijs/podium",
+  "engines": {
+    "node": ">=8.0.0"
+  },
   "main": "lib/index.js",
   "keywords": [
     "emitter",
     "event"
   ],
   "dependencies": {
-    "@hapi/hoek": "8.x.x",
-    "@hapi/joi": "16.x.x"
+    "@commercial/hoek": "^8.5.1",
+    "@commercial/joi": "^16.1.8"
   },
   "devDependencies": {
     "@hapi/code": "6.x.x",
     "@hapi/lab": "20.x.x",
-    "@hapi/teamwork": "3.x.x"
+    "@commercial/teamwork": "3.x.x"
   },
   "scripts": {
     "test": "lab -a @hapi/code -t 100 -L",
     "test-cov-html": "lab -r html -o coverage.html -a @hapi/code -L"
   },
-  "license": "BSD-3-Clause"
+  "license": "SEE LICENSE IN LICENSE.md"
 }
