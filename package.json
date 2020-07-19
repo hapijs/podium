@@ -13,7 +13,7 @@
   ],
   "dependencies": {
     "@hapi/hoek": "9.x.x",
-    "@hapi/teamwork": "4.x.x",
+    "@hapi/teamwork": "5.x.x",
     "@hapi/validate": "1.x.x"
   },
   "devDependencies": {
