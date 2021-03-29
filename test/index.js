@@ -352,9 +352,27 @@ describe('Podium', () => {
         it('adds tags (spread)', () => {
 
             const emitter = new Podium({ name: 'test', tags: true, spread: true });
-            emitter.on('test', (a, b, c, tags) => {
+            emitter.on('test', (a, b, c, tags, ...rest) => {
 
                 expect({ a, b, c, tags }).to.equal({ a: 1, b: 2, c: 3, tags: { a: true, b: true } });
+                expect(rest).to.have.length(0);
+            });
+
+            emitter.emit({ name: 'test', tags: ['a', 'b'] }, [1, 2, 3]);
+        });
+
+        it('adds tags for multiple listeners (spread)', () => {
+
+            const emitter = new Podium({ name: 'test', tags: true, spread: true });
+            emitter.on('test', (a, b, c, tags, ...rest) => {
+
+                expect({ a, b, c, tags }).to.equal({ a: 1, b: 2, c: 3, tags: { a: true, b: true } });
+                expect(rest).to.have.length(0);
+            });
+            emitter.on('test', (a, b, c, tags, ...rest) => {
+
+                expect({ a, b, c, tags }).to.equal({ a: 1, b: 2, c: 3, tags: { a: true, b: true } });
+                expect(rest).to.have.length(0);
             });
 
             emitter.emit({ name: 'test', tags: ['a', 'b'] }, [1, 2, 3]);
