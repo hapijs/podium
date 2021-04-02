@@ -50,7 +50,7 @@ declare class Podium {
      *
      * @returns A reference to the current emitter.
      */
-    on<Tcontext extends object = this>(criteria: string | Podium.CriteriaObject, listener: Podium.Listener<Tcontext>, context?: Tcontext): this;
+    on<TArgs extends any[] = any[], Tcontext extends object = this>(criteria: string | Podium.CriteriaObject, listener: Podium.Listener<Tcontext, TArgs>, context?: Tcontext): this;
 
     /**
      * Subscribe a handler to an event. Same as podium.on().
@@ -62,7 +62,7 @@ declare class Podium {
      *
      * @returns A reference to the current emitter.
      */
-    addListener<Tcontext extends object = this>(criteria: string | Podium.CriteriaObject, listener: Podium.Listener<Tcontext>, context?: Tcontext): this;
+    addListener<TArgs extends any[] = any[], Tcontext extends object = this>(criteria: string | Podium.CriteriaObject, listener: Podium.Listener<Tcontext, TArgs>, context?: Tcontext): this;
 
     /**
      * Same as podium.on() with the count option set to 1.
@@ -76,7 +76,7 @@ declare class Podium {
      *
      * @returns A reference to the current emitter.
      */
-    once<Tcontext extends object = this>(criteria: string | Omit<Podium.CriteriaObject, 'count'>, listener: Podium.Listener<Tcontext>, context?: Tcontext): this;
+    once<TArgs extends any[] = any[], Tcontext extends object = this>(criteria: string | Omit<Podium.CriteriaObject, 'count'>, listener: Podium.Listener<Tcontext, TArgs>, context?: Tcontext): this;
 
     /**
      * Wait for a single event. The count option is fixed to 1.
@@ -194,8 +194,8 @@ declare namespace Podium {
 
     type Event = string | EventOptions | Podium;
 
-    type Listener<TContext extends object> =
-        (this: TContext, data?: any, tags?: { [tag: string]: true | undefined }) => void | Promise<void>;
+    type Listener<TContext extends object, TArgs extends any[] = []> =
+      (this: TContext, ...args: [...TArgs]) => void | Promise<void>;
 
     interface CriteriaFilterOptionsObject {
 
