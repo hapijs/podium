@@ -57,10 +57,15 @@ expect.type<Podium>(podium.on({ name: 'test', tags: true }, function () { }));
 expect.type<Podium>(podium.on({ name: 'test', clone: true }, function () { }));
 expect.type<Podium>(podium.on({ name: 'test', spread: true }, function () { }));
 expect.type<Podium>(podium.on({ name: 'test', count: 3 }, function () { }));
-expect.type<Podium>(podium.on<[string, number]>('test', function (a, b) {
-  expect.type<string>(a);
-  expect.type<number>(b);
-  this instanceof Podium;
+expect.type<Podium>(podium.on('test', function (a, b) {
+
+    expect.type<unknown>(a);
+    expect.type<unknown>(b);
+}));
+expect.type<Podium>(podium.on('test', function (a: string, b: number) {
+
+    expect.type<string>(a);
+    expect.type<number>(b);
 }));
 
 expect.error(podium.on());
@@ -69,19 +74,17 @@ expect.error(podium.on(123, function () { }));
 expect.error(podium.on('test', Podium));
 expect.error(podium.on('test', function () { }), 123);
 expect.error(podium.on('test', function () { this.notOk; }, { ok: true }));
-expect.type<Podium>(podium.on<[string, string]>('test', function (a, b) {
-  expect.type<string>(a);
-  expect.error(expect.type<number>(b));
-  this instanceof Podium;
-}));
 
 // addListener()
 
 expect.type<Podium>(podium.addListener('test', function () { this instanceof Podium; }));
 expect.type<Podium>(podium.addListener('test', function () { this.ok; }, { ok: true }));
 expect.type<Podium>(podium.addListener('test', function () { this.ok; }, { ok: true }));
-expect.type<Podium>(podium.addListener<[string, number], { ok: boolean }>('test', function (a, b) {
-  this.ok;
+expect.type<Podium>(podium.addListener<[a: string, b: number], { ok: boolean }>('test', function (a, b) {
+
+    expect.type<boolean>(this.ok);
+    expect.type<string>(a);
+    expect.type<number>(b);
 }, { ok: true }));
 
 expect.error(podium.addListener());
@@ -102,12 +105,12 @@ expect.type<Podium>(podium.once({ name: 'test', filter: { all: true, tags: ['a',
 expect.type<Podium>(podium.once({ name: 'test', tags: true }, function () { }));
 expect.type<Podium>(podium.once({ name: 'test', clone: true }, function () { }));
 expect.type<Podium>(podium.once({ name: 'test', spread: true }, function () { }));
-expect.type<Promise<any[]>>(podium.once('test'));
-expect.type<Promise<any[]>>(podium.once<void>('test'));
-expect.type<Podium>(podium.once<[string, number]>('test', function (a, b) {
-  expect.type<string>(a);
-  expect.type<number>(b);
-  this instanceof Podium;
+expect.type<Promise<unknown[]>>(podium.once('test'));
+expect.type<Promise<[a: number]>>(podium.once<[ a: number]>('test'));
+expect.type<Podium>(podium.once('test', function (a: string, b: number) {
+
+    expect.type<string>(a);
+    expect.type<number>(b);
 }));
 
 expect.error(podium.once());
@@ -140,3 +143,25 @@ expect.type<boolean>(podium.hasListeners('test'));
 
 expect.error(podium.hasListeners());
 expect.error(podium.hasListeners(123));
+
+// Allows custom events in a subclass declaration
+
+type TestListener = (a: string, b: number) => void;
+
+declare class MyPodium extends Podium {
+
+    on(criteria: 'test', listener: TestListener): this;
+    once(criteria: 'test', listener: TestListener): this;
+    once(criteria: 'test'): Promise<Parameters<TestListener>>;
+}
+
+const mypodium = podium as MyPodium;
+
+expect.type<MyPodium>(mypodium.on('test', function (a, b) {
+
+    expect.type<string>(a);
+    expect.type<number>(b);
+}));
+expect.type<Promise<[a: string, b: number]>>(mypodium.once('test'));
+
+expect.error(mypodium.on('test', function (a: number) { }));

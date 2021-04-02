@@ -50,6 +50,7 @@ declare class Podium {
      *
      * @returns A reference to the current emitter.
      */
+    on<TArgs extends any[] = unknown[], Tcontext extends object = this>(criteria: string | Podium.CriteriaObject, listener: Podium.Listener<Tcontext, TArgs>, context?: Tcontext): this;
     on<TArgs extends any[] = any[], Tcontext extends object = this>(criteria: string | Podium.CriteriaObject, listener: Podium.Listener<Tcontext, TArgs>, context?: Tcontext): this;
 
     /**
@@ -62,6 +63,7 @@ declare class Podium {
      *
      * @returns A reference to the current emitter.
      */
+    addListener<TArgs extends any[] = unknown[], Tcontext extends object = this>(criteria: string | Podium.CriteriaObject, listener: Podium.Listener<Tcontext, TArgs>, context?: Tcontext): this;
     addListener<TArgs extends any[] = any[], Tcontext extends object = this>(criteria: string | Podium.CriteriaObject, listener: Podium.Listener<Tcontext, TArgs>, context?: Tcontext): this;
 
     /**
@@ -76,6 +78,7 @@ declare class Podium {
      *
      * @returns A reference to the current emitter.
      */
+    once<TArgs extends any[] = unknown[], Tcontext extends object = this>(criteria: string | Omit<Podium.CriteriaObject, 'count'>, listener: Podium.Listener<Tcontext, TArgs>, context?: Tcontext): this;
     once<TArgs extends any[] = any[], Tcontext extends object = this>(criteria: string | Omit<Podium.CriteriaObject, 'count'>, listener: Podium.Listener<Tcontext, TArgs>, context?: Tcontext): this;
 
     /**
@@ -85,7 +88,8 @@ declare class Podium {
      *
      * @returns Promise with array of emitted parameters.
      */
-    once<Tcontext extends void = void>(criteria: string | Omit<Podium.CriteriaObject, 'count'>): Promise<any[]>;
+    once<TArgs extends any[] = unknown[], Tcontext extends void = void>(criteria: string | Omit<Podium.CriteriaObject, 'count'>): Promise<TArgs>;
+    once<TArgs extends any[] = any[], Tcontext extends void = void>(criteria: string | Omit<Podium.CriteriaObject, 'count'>): Promise<TArgs>;
 
     /**
      * Removes all listeners subscribed to a given event name matching the provided listener method.
@@ -95,7 +99,7 @@ declare class Podium {
      * 
      * @returns A reference to the current emitter.
      */
-    removeListener(name: string, listener: Podium.Listener<any>): this;
+    removeListener(name: string, listener: Podium.Listener): this;
 
     /**
      * Removes all listeners subscribed to a given event name.
@@ -194,8 +198,8 @@ declare namespace Podium {
 
     type Event = string | EventOptions | Podium;
 
-    type Listener<TContext extends object, TArgs extends any[] = []> =
-      (this: TContext, ...args: [...TArgs]) => void | Promise<void>;
+    type Listener<TContext extends object = any, TArgs extends any[] = any[]> =
+        (this: TContext, ...args: TArgs) => void | Promise<void>;
 
     interface CriteriaFilterOptionsObject {
 
