@@ -1,13 +1,30 @@
+
+type IfUndefinedElse<T, If, Else> = T extends undefined ? If : Else;
+
+type EventNames<Events> = IfUndefinedElse<Events, string, keyof Events>;
+
+type EventListenerParameters<Events> = Events[keyof Events] extends (...args: any) => any
+  ? Parameters<Events[keyof Events]>
+  : never
+;
+
+type EmitData<Events> = IfUndefinedElse<Events, any, EventListenerParameters<Events>>;
+
+type EventListener<Events, TArgs extends unknown[], TContext extends object> = Podium.Listener<
+  TContext,
+  IfUndefinedElse<Events, TArgs, EventListenerParameters<Events>>
+>;
+
 /**
  * Node (semi) compatible event emitter with extra features.
  */
-declare class Podium {
+declare class Podium<Events = undefined> {
     /**
      * Creates a new podium emitter.
      * 
      * @param events - If present, the value is passed to podium.registerEvent().
      */
-    constructor(events?: Podium.Event | Podium.Event[]);
+    constructor(events?: Podium.Event<EventNames<Events>> | Podium.Event<EventNames<Events>>[]);
 
     /**
      * Register the specified events and their optional configuration. Events must be registered 
@@ -16,7 +33,7 @@ declare class Podium {
      * 
      * @param events - The event(s) to register.
      */
-    registerEvent(events: Podium.Event | Podium.Event[]): void;
+    registerEvent(events: Podium.Event<EventNames<Events>> | Podium.Event<EventNames<Events>>[]): void;
 
     /**
      * Registers another emitter as an event source for the current emitter (any event update
@@ -38,7 +55,7 @@ declare class Podium {
      * @returns Promise that resolves when all events has been processed. Any errors will cause an
      * immediate rejection.
      */
-    emit(criteria: string | Podium.EmitCriteria, data?: any): Promise<void>;
+    emit(criteria: Podium.EmitCriteria<EventNames<Events>>, data?: EmitData<Events>): Promise<void>;
 
     /**
      * Subscribe a handler to an event.
@@ -50,8 +67,8 @@ declare class Podium {
      *
      * @returns A reference to the current emitter.
      */
-    on<TArgs extends any[] = unknown[], Tcontext extends object = this>(criteria: string | Podium.CriteriaObject, listener: Podium.Listener<Tcontext, TArgs>, context?: Tcontext): this;
-    on<TArgs extends any[] = any[], Tcontext extends object = this>(criteria: string | Podium.CriteriaObject, listener: Podium.Listener<Tcontext, TArgs>, context?: Tcontext): this;
+    on<TArgs extends any[] = unknown[], Tcontext extends object = this>
+        (criteria: Podium.Criteria<EventNames<Events>>, listener: EventListener<Events, TArgs, Tcontext>, context?: Tcontext): this
 
     /**
      * Subscribe a handler to an event. Same as podium.on().
@@ -63,8 +80,8 @@ declare class Podium {
      *
      * @returns A reference to the current emitter.
      */
-    addListener<TArgs extends any[] = unknown[], Tcontext extends object = this>(criteria: string | Podium.CriteriaObject, listener: Podium.Listener<Tcontext, TArgs>, context?: Tcontext): this;
-    addListener<TArgs extends any[] = any[], Tcontext extends object = this>(criteria: string | Podium.CriteriaObject, listener: Podium.Listener<Tcontext, TArgs>, context?: Tcontext): this;
+    addListener<TArgs extends any[] = unknown[], Tcontext extends object = this>
+        (criteria: Podium.Criteria<EventNames<Events>>, listener: EventListener<Events, TArgs, Tcontext>, context?: Tcontext): this;
 
     /**
      * Same as podium.on() with the count option set to 1.
@@ -78,8 +95,8 @@ declare class Podium {
      *
      * @returns A reference to the current emitter.
      */
-    once<TArgs extends any[] = unknown[], Tcontext extends object = this>(criteria: string | Omit<Podium.CriteriaObject, 'count'>, listener: Podium.Listener<Tcontext, TArgs>, context?: Tcontext): this;
-    once<TArgs extends any[] = any[], Tcontext extends object = this>(criteria: string | Omit<Podium.CriteriaObject, 'count'>, listener: Podium.Listener<Tcontext, TArgs>, context?: Tcontext): this;
+    once<TArgs extends any[] = unknown[], Tcontext extends object = this>
+        (criteria: Podium.OnceCriteria<EventNames<Events>>, listener: EventListener<Events, TArgs, Tcontext>, context?: Tcontext): this;
 
     /**
      * Wait for a single event. The count option is fixed to 1.
@@ -88,8 +105,7 @@ declare class Podium {
      *
      * @returns Promise with array of emitted parameters.
      */
-    once<TArgs extends any[] = unknown[], Tcontext extends void = void>(criteria: string | Omit<Podium.CriteriaObject, 'count'>): Promise<TArgs>;
-    once<TArgs extends any[] = any[], Tcontext extends void = void>(criteria: string | Omit<Podium.CriteriaObject, 'count'>): Promise<TArgs>;
+    once<TArgs extends any[] = unknown[], Tcontext extends object = this>(criteria: Podium.OnceCriteria<EventNames<Events>>): Promise<TArgs>;
 
     /**
      * Removes all listeners subscribed to a given event name matching the provided listener method.
@@ -122,12 +138,14 @@ declare class Podium {
 
 declare namespace Podium {
 
-    export interface EmitCriteria { 
+    type EventName = string | number | symbol
+
+    interface EmitCriteriaInterface<TName extends EventName> {
 
         /**
          * Event name.
          */
-        readonly name: string;
+        readonly name: TName;
 
         /**
          * Channel name.
@@ -140,12 +158,14 @@ declare namespace Podium {
         readonly tags?: string | string[] | { [tag: string]: boolean };
     }
 
-    export interface EventOptions {
+    export type EmitCriteria<TName extends EventName> = EmitCriteriaInterface<TName> | TName
+
+    interface EventOptionsInterface<TName extends EventName> {
 
         /**
          * Event name.
          */
-        readonly name: string;
+        readonly name: TName;
 
         /**
          * A string or array of strings specifying the event channels available.
@@ -196,7 +216,9 @@ declare namespace Podium {
         readonly shared?: boolean;
     }
 
-    type Event = string | EventOptions | Podium;
+    type EventOptions<TName extends EventName> = EventOptionsInterface<TName> | TName
+
+    type Event<TName extends EventName> = TName | EventOptions<TName> | Podium;
 
     type Listener<TContext extends object = any, TArgs extends any[] = any[]> =
         (this: TContext, ...args: TArgs) => void | Promise<void>;
@@ -216,20 +238,20 @@ declare namespace Podium {
         readonly all?: boolean;
     }
 
-    export interface CriteriaObject {
+    interface CriteriaInterface<TName extends EventName> {
 
         /**
          * Event name.
          */
-        readonly name: string;
+        readonly name: TName;
 
         /**
          * The event channels to subscribe to.
-         * 
+         *
          * If the event registration specified a list of allowed channels, the channels array must
          * match the allowed channels. If channels are specified, event updates without any channel
          * designation will not be included in the subscription.
-         * 
+         *
          * Defaults to no channels filter.
          */
         readonly channels?: string | string[];
@@ -237,7 +259,7 @@ declare namespace Podium {
         /**
          * Set to clone the data object passed to podium.emit() before it is passed to the listener
          * method.
-         * 
+         *
          * Defaults to the event registration option (which defaults to false).
          */
         readonly clone?: boolean;
@@ -273,6 +295,9 @@ declare namespace Podium {
          */
         readonly tags?: boolean;
     }
+
+    export type Criteria<TName extends EventName = string> = CriteriaInterface<TName> | TName
+    export type OnceCriteria<TName extends EventName = string> = Omit<CriteriaInterface<TName>, 'count'> | TName
 }
 
 export = Podium;
