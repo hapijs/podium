@@ -117,40 +117,6 @@ describe('Podium', () => {
         hydrometer.reading(7);
     });
 
-    describe('decorate()', () => {
-
-        it('reuses podium events to decorate a new one', () => {
-
-            const source = new Podium.Podium(['a', 'b']);
-            const Emitter = class extends Podium.Podium { };
-
-            const emitter = new Emitter();
-            Podium.decorate(emitter, source);
-
-            const updates = [];
-
-            const aHandler = (data) => {
-
-                updates.push({ a: data, id: 1 });
-            };
-
-            emitter.on({ name: 'a' }, aHandler);
-
-            const bHandler = (data) => {
-
-                updates.push({ b: data, id: 1 });
-            };
-
-            emitter.on('b', bHandler);
-
-            emitter.emit('a', 1);
-            updates.push('a done');
-
-            emitter.emit('b', 1);
-            expect(updates).to.equal([{ a: 1, id: 1 }, 'a done', { b: 1, id: 1 }]);
-        });
-    });
-
     describe('emit()', () => {
 
         it('returns callbacks in order added', () => {
