@@ -4,7 +4,6 @@ const Code = require('@hapi/code');
 const Hoek = require('@hapi/hoek');
 const Lab = require('@hapi/lab');
 const Podium = require('..');
-const Teamwork = require('@hapi/teamwork');
 
 
 const internals = {};
@@ -243,8 +242,6 @@ describe('Podium', () => {
             };
 
             const emitter = new Podium({ name: 'test' });
-            const sub = new Podium();
-            sub.registerPodium(emitter);
 
             let received = 0;
             emitter.on({ name: 'test', filter: 'a' }, (data) => {
@@ -253,7 +250,7 @@ describe('Podium', () => {
                 expect(data).to.equal({ a: 1 });
             });
 
-            sub.on({ name: 'test', filter: 'a' }, (data) => {
+            emitter.on({ name: 'test', filter: 'a' }, (data) => {
 
                 ++received;
                 expect(data).to.equal({ a: 1 });
@@ -734,26 +731,6 @@ describe('Podium', () => {
 
     describe('registerEvent()', () => {
 
-        it('combines multiple sources', async () => {
-
-            const source = new Podium();
-            const emitter = new Podium('a');
-            emitter.registerPodium(source);
-
-            source.registerEvent(['a', 'b', null]);
-
-            const team = new Teamwork.Team({ meetings: 2 });
-            emitter.on('b', (data) => {
-
-                expect(data).to.equal(1);
-                team.attend();
-            });
-
-            source.emit('b', 1);
-            source.emit('b', 1);
-            await team.work;
-        });
-
         it('ignores existing when shared is true', () => {
 
             const source = new Podium();
@@ -790,153 +767,6 @@ describe('Podium', () => {
 
                 source.registerEvent({ name: 'a', unknown: 'x' }, { validate: false });
             }).to.not.throw();
-        });
-    });
-
-    describe('registerPodium()', () => {
-
-        it('combines multiple sources', async () => {
-
-            const source1 = new Podium('test');
-            const source2 = new Podium('test');
-
-            const emitter = new Podium();
-            emitter.registerPodium(source1);
-            emitter.registerPodium(source2);
-
-            let counter = 0;
-            emitter.on('test', (data) => {
-
-                ++counter;
-                expect(data).to.equal(1);
-            });
-
-            source1.emit('test', 1);
-            await source2.emit('test', 1);
-            expect(counter).to.equal(2);
-        });
-
-        it('ignores repeated registrations', async () => {
-
-            const source = new Podium('test');
-            const emitter = new Podium();
-            emitter.registerPodium(source);
-            emitter.registerPodium(source);
-
-            let counter = 0;
-            emitter.on('test', (data) => ++counter);
-
-            await source.emit('test', null);
-            expect(counter).to.equal(1);
-        });
-
-        it('combines multiple sources in constructor', async () => {
-
-            const source1 = new Podium('test');
-            const source2 = new Podium('test');
-
-            const emitter = new Podium([source1, source2]);
-
-            const team = new Teamwork.Team({ meetings: 2 });
-            emitter.on('test', (data) => {
-
-                expect(data).to.equal(1);
-                team.attend();
-            });
-
-            source1.emit('test', 1);
-            source2.emit('test', 1);
-            await team.work;
-        });
-
-        it('combines multiple sources in constructor and after', async () => {
-
-            const source1 = new Podium('test');
-            const source2 = new Podium('test');
-
-            const emitter = new Podium(source1);
-            emitter.registerPodium(source2);
-
-            const team = new Teamwork.Team({ meetings: 2 });
-            emitter.on('test', (data) => {
-
-                expect(data).to.equal(1);
-                team.attend();
-            });
-
-            source1.emit('test', 1);
-            source2.emit('test', 1);
-            await team.work;
-        });
-
-        it('combines multiple sources with own emit', async () => {
-
-            const source1 = new Podium('test');
-            const source2 = new Podium('test');
-
-            const emitter = new Podium();
-            emitter.registerPodium(source1);
-            emitter.registerPodium(source2);
-
-            const team = new Teamwork.Team({ meetings: 3 });
-            emitter.on('test', (data) => {
-
-                expect(data).to.equal(1);
-                team.attend();
-            });
-
-            source1.emit('test', 1);
-            emitter.emit('test', 1);
-            source2.emit('test', 1);
-            await team.work;
-        });
-
-        it('adds sources after listeners', async () => {
-
-            const source1 = new Podium('test');
-            const source2 = new Podium('test');
-
-            const emitter = new Podium('test');
-
-            const team = new Teamwork.Team({ meetings: 2 });
-            emitter.on('test', (data) => {
-
-                expect(data).to.equal(1);
-                team.attend();
-            });
-
-            emitter.registerPodium(source1);
-            emitter.registerPodium(source2);
-
-            source1.emit('test', 1);
-            source2.emit('test', 1);
-            await team.work;
-        });
-
-        it('subscribed multiple times', async () => {
-
-            const source1 = new Podium('test');
-            const source2 = new Podium('test');
-
-            const emitter = new Podium('test');
-
-            let counter = 0;
-            emitter.on('test', () => {
-
-                ++counter;
-            });
-
-            emitter.on('test', () => {
-
-                counter = counter * 4;
-            });
-
-            emitter.registerPodium(source1);
-            emitter.registerPodium(source2);
-
-            source1.emit('test');
-            await source2.emit('test', null);
-            expect(counter).to.equal(20);
         });
     });
 });

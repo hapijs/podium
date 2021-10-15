@@ -8,27 +8,20 @@ const { expect } = Lab.types;
 
 expect.type<Podium>(new Podium());
 expect.type<Podium>(new Podium('test'));
-expect.type<Podium>(new Podium(['a', { name: 'b', channels: ['c'] }, new Podium()]));
+expect.type<Podium>(new Podium(['a', { name: 'b', channels: ['c'] }]));
+
+expect.error(new Podium(new Podium()));
 
 const podium = new Podium();
 
 // registerEvent()
 
 expect.type<void>(podium.registerEvent('test'));
-expect.type<void>(podium.registerEvent(['a', { name: 'b', channels: ['c'] }, new Podium()]));
-
+expect.type<void>(podium.registerEvent(['a', { name: 'b', channels: ['c'] }]));
 expect.error(podium.registerEvent());
+expect.error(podium.registerEvent(new Podium()));
 expect.error(podium.registerEvent(123));
 expect.error(podium.registerEvent([Symbol()]));
-
-// registerPodium()
-
-expect.type<void>(podium.registerPodium(new Podium()));
-expect.type<void>(podium.registerPodium([new Podium()]));
-
-expect.error(podium.registerPodium());
-expect.error(podium.registerPodium('test'));
-expect.error(podium.registerPodium([{ name: 'test' }]));
 
 // emit()
 

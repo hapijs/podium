@@ -365,17 +365,7 @@ event activities. The `events` argument can be:
       registration is ignored. **Note that if the registration config is changed between registrations,
       only the first configuration is used. Defaults to `false` (a duplicate registration will throw an
       error).** For detailed examples of event parameters [see here](README.md#parameters)
-- a `Podium` object which is passed to [`podium.registerPodium()`](#podiumregisterpodiumpodiums).
 - an array containing any of the above.
-
-## `podium.registerPodium(podiums)`
-
-Registers another emitter as an event source for the current emitter (any event update emitted by the
-source emitter is passed to any subscriber of the current emitter) where:
-- `podiums` - a `Podium` object or an array of objects, each added as a source.
-
-Note that any events registered with a source emitter are automatically added to the current emitter.
-If the events are already registered, they are left as-is.
 
 ## `podium.emit(criteria, data)`
 

@@ -19,17 +19,6 @@ declare class Podium {
     registerEvent(events: Podium.Event | Podium.Event[]): void;
 
     /**
-     * Registers another emitter as an event source for the current emitter (any event update
-     * emitted by the source emitter is passed to any subscriber of the current emitter).
-     * 
-     * Note that any events registered with a source emitter are automatically added to the current
-     * emitter. If the events are already registered, they are left as-is.
-     * 
-     * @param podiums - A Podium object or an array of objects, each added as a source.
-     */
-    registerPodium(podiums: Podium | Podium[]): void;
-
-    /**
      * Emits an event update to all the subscribed listeners.
 
      * @param criteria - The event update criteria.
@@ -196,7 +185,7 @@ declare namespace Podium {
         readonly shared?: boolean;
     }
 
-    type Event = string | EventOptions | Podium;
+    type Event = string | EventOptions;
 
     type Listener<TContext extends object = any, TArgs extends any[] = any[]> =
         (this: TContext, ...args: TArgs) => void | Promise<void>;
