@@ -1,4 +1,4 @@
-import * as Podium from '..';
+import { Podium } from '..';
 import * as Lab from '@hapi/lab';
 
 

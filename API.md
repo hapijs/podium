@@ -13,7 +13,7 @@ is largely insignificant as implementing these features will have similar cost o
 ```js
 const Podium = require('@hapi/podium');
 
-const emitter = new Podium()
+const emitter = new Podium.Podium()
 
 const context = { count: 0 }
 
@@ -86,7 +86,7 @@ Along with channels, podium allows you to specify other event parameters. Below 
 
 ```js
 const Podium = require('@hapi/podium');
-const podiumObject = new Podium();
+const podiumObject = new Podium.Podium();
 
 podiumObject.registerEvent([
     {
@@ -135,7 +135,7 @@ podiumObject.emit({
 
 ```js
 const Podium = require('@hapi/podium');
-const podiumObject = new Podium();
+const podiumObject = new Podium.Podium();
 
 podiumObject.registerEvent([
     {
@@ -193,7 +193,7 @@ console.log('after event2, ch1: ', arr);
 
 ```js
 const Podium = require('@hapi/podium');
-const podiumObject = new Podium();
+const podiumObject = new Podium.Podium();
 
 podiumObject.registerEvent([
     {
@@ -250,7 +250,7 @@ console.log('after event2, ch1: ', arr);
 
 ```js
 const Podium = require('@hapi/podium');
-const podiumObject = new Podium();
+const podiumObject = new Podium.Podium();
 
 podiumObject.registerEvent([
     {
@@ -287,7 +287,7 @@ podiumObject.emit({
 
 ```js
 const Podium = require('@hapi/podium');
-const emitter = new Podium('test');
+const emitter = new Podium.Podium('test');
 
 const updates = [];
 emitter.on('test', (data) => updates.push({ id: 1, data }));

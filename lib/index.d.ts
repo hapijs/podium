@@ -1,7 +1,7 @@
 /**
  * Node (semi) compatible event emitter with extra features.
  */
-declare class Podium {
+export class Podium {
     /**
      * Creates a new podium emitter.
      * 
@@ -260,5 +260,3 @@ declare namespace Podium {
         readonly tags?: boolean;
     }
 }
-
-export = Podium;
