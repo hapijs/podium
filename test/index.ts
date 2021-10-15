@@ -25,11 +25,11 @@ expect.error(podium.registerEvent([Symbol()]));
 
 // emit()
 
-expect.type<Promise<void>>(podium.emit('test'));
-expect.type<Promise<void>>(podium.emit('test', { data: true }));
-expect.type<Promise<void>>(podium.emit({ name: 'test', channel: 'a', tags: 'b' }, { data: true }));
-expect.type<Promise<void>>(podium.emit({ name: 'test', tags: ['b'] }));
-expect.type<Promise<void>>(podium.emit({ name: 'test', tags: { b: true } }));
+expect.type<void>(podium.emit('test'));
+expect.type<void>(podium.emit('test', { data: true }));
+expect.type<void>(podium.emit({ name: 'test', channel: 'a', tags: 'b' }, { data: true }));
+expect.type<void>(podium.emit({ name: 'test', tags: ['b'] }));
+expect.type<void>(podium.emit({ name: 'test', tags: { b: true } }));
 
 expect.error(podium.emit());
 expect.error(podium.emit(123));
@@ -72,7 +72,7 @@ expect.error(podium.on('test', function () { this.notOk; }, { ok: true }));
 
 expect.type<Podium>(podium.addListener('test', function () { this instanceof Podium; }));
 expect.type<Podium>(podium.addListener('test', function () { this.ok; }, { ok: true }));
-expect.type<Podium>(podium.addListener('test', function () { this.ok; }, { ok: true }));
+expect.type<Podium>(podium.addListener('test', () => true));
 expect.type<Podium>(podium.addListener<[a: string, b: number], { ok: boolean }>('test', function (a, b) {
 
     expect.type<boolean>(this.ok);

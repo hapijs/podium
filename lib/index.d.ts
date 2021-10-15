@@ -23,11 +23,8 @@ declare class Podium {
 
      * @param criteria - The event update criteria.
      * @param data - The value emitted to the subscribers.
-     * 
-     * @returns Promise that resolves when all events has been processed. Any errors will cause an
-     * immediate rejection.
      */
-    emit(criteria: string | Podium.EmitCriteria, data?: any): Promise<void>;
+    emit(criteria: string | Podium.EmitCriteria, data?: any): void;
 
     /**
      * Subscribe a handler to an event.
@@ -188,7 +185,7 @@ declare namespace Podium {
     type Event = string | EventOptions;
 
     type Listener<TContext extends object = any, TArgs extends any[] = any[]> =
-        (this: TContext, ...args: TArgs) => void | Promise<void>;
+        (this: TContext, ...args: TArgs) => unknown;
 
     interface CriteriaFilterOptionsObject {
 
