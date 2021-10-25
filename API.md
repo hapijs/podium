@@ -441,13 +441,13 @@ Same as calling [`podium.on()`](#podiumoncriteria-listener) with the `count` opt
 
 Same as calling [`podium.on()`](#podiumoncriteria-listener) with the `count` option set to `1`.
 
-Return a promise that resolves when the event is emitted.
+Return a promise that resolves when the event is emitted. The resolution value is an array of emitted arguments.
 
 ## `podium.few(criteria, context)`
 
 Same as calling [`podium.on()`](#podiumoncriteria-listener) with the `count` option, except it is required.
 
-Returns a promise that resolves when the event is emitted `count` times.
+Returns a promise that resolves when the event is emitted `count` times. The resolution value is an array where each item is an array of emitted arguments.
 
 ## `podium.removeListener(name, listener)`
 
