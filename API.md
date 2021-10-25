@@ -370,7 +370,7 @@ event activities. The `events` argument can be:
 - an array containing any of the above.
 
 The `options` argument is an object with the following optional properties:
-- `validate` - if `true` events declarations are validated. **Defaults to `true`**
+- `validate` - if `true`, events declarations are validated. **Defaults to `true`**
 
 ## `podium.registerPodium(podiums)`
 
