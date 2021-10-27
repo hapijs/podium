@@ -370,7 +370,8 @@ event activities. The `events` argument can be:
 - an array containing any of the above.
 
 The `options` argument is an object with the following optional properties:
-- `validate` - if `true`, events declarations are validated. **Defaults to `true`**
+- `validate` - if `false`, events are not validated. This is only allowed when the `events`
+               value is returned from `Podium.validate()`. **Defaults to `true`**
 
 ## `podium.registerPodium(podiums)`
 
@@ -437,15 +438,17 @@ Same as [`podium.on()`](#podiumoncriteria-listener).
 
 Same as calling [`podium.on()`](#podiumoncriteria-listener) with the `count` option set to `1`.
 
-## `podium.once(criteria)`
+## `await podium.once(criteria)`
 
-Same as calling [`podium.on()`](#podiumoncriteria-listener) with the `count` option set to `1`.
+Subscribes to an event by returning a promise that resolves when the event is emitted. `criteria` can be specified
+in any format supported by [`podium.on()`](#podiumoncriteria-listener), except for the `count` option that is set to `1`.
 
 Return a promise that resolves when the event is emitted. The resolution value is an array of emitted arguments.
 
 ## `podium.few(criteria, context)`
 
-Same as calling [`podium.on()`](#podiumoncriteria-listener) with the `count` option, except it is required.
+Subscribes to an event by returning a promise that resolves when the event is emitted `count` times. `criteria` can be specified
+in any format supported by [`podium.on()`](#podiumoncriteria-listener), except the `count` option is required.
 
 Returns a promise that resolves when the event is emitted `count` times. The resolution value is an array where each item is an array of emitted arguments.
 
@@ -473,6 +476,7 @@ Returns `true` if the event name has any listeners, otherwise `false`.
 
 ## `Podium.validate(events)`
 
-Takes the specified events and validates that the declaration is correct. Events can be declared
-in any of the formats supported by the `registerEvent` method. When the declaration is valid
-an array of valid events is returned, otherwise a validation error is thrown.
+Validates that events are declared in the correct format. Events can be declared
+in any of the formats supported by the [`podium.registerEvent()`](#podiumregistereventevents) method.
+When the declaration is valid, the array of events returned can be passed to the [`podium.registerEvent()`](#podiumregistereventevents)
+method with validations disabled, otherwise a validation error is thrown.
