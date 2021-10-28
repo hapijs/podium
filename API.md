@@ -445,7 +445,7 @@ in any format supported by [`podium.on()`](#podiumoncriteria-listener), except f
 
 Return a promise that resolves when the event is emitted. The resolution value is an array of emitted arguments.
 
-## `podium.few(criteria, context)`
+## `podium.few(criteria)`
 
 Subscribes to an event by returning a promise that resolves when the event is emitted `count` times. `criteria` can be specified
 in any format supported by [`podium.on()`](#podiumoncriteria-listener), except the `count` option is required.
