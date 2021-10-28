@@ -447,8 +447,8 @@ Return a promise that resolves when the event is emitted. The resolution value i
 
 ## `podium.few(criteria)`
 
-Subscribes to an event by returning a promise that resolves when the event is emitted `count` times. `criteria` can be specified
-in any format supported by [`podium.on()`](#podiumoncriteria-listener), except the `count` option is required.
+Subscribes to an event by returning a promise that resolves when the event is emitted `count` times. `criteria` can only be specified
+in the object format supported by [`podium.on()`](#podiumoncriteria-listener) and the `count` option is required.
 
 Returns a promise that resolves when the event is emitted `count` times. The resolution value is an array where each item is an array of emitted arguments.
 
