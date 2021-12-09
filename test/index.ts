@@ -9,6 +9,7 @@ const { expect } = Lab.types;
 expect.type<Podium>(new Podium());
 expect.type<Podium>(new Podium('test'));
 expect.type<Podium>(new Podium(['a', { name: 'b', channels: ['c'] }, new Podium()]));
+expect.type<Podium>(new Podium('test', { validate: true }));
 
 const podium = new Podium();
 
@@ -16,10 +17,12 @@ const podium = new Podium();
 
 expect.type<void>(podium.registerEvent('test'));
 expect.type<void>(podium.registerEvent(['a', { name: 'b', channels: ['c'] }, new Podium()]));
+expect.type<void>(podium.registerEvent('c', { validate: true }))
 
 expect.error(podium.registerEvent());
 expect.error(podium.registerEvent(123));
 expect.error(podium.registerEvent([Symbol()]));
+expect.error(podium.registerEvent('d', { unknown: false }))
 
 // registerPodium()
 
@@ -119,6 +122,24 @@ expect.error(podium.once('test', Podium));
 expect.error(podium.once('test', function () { this.notOk; }, { ok: true }));
 expect.error(podium.once({ name: 'test', unknown: true }, function () { }));
 expect.error(podium.once({ name: 'test', count: 3 }, function () { }));
+
+// few()
+
+expect.type<Promise<unknown[]>>(podium.few({ name: 'test', count: 2 }));
+expect.type<Promise<unknown[]>>(podium.few({ name: 'test', count: 2, channels: 'a' }));
+expect.type<Promise<unknown[]>>(podium.few({ name: 'test', count: 2, filter: 'a' }));
+expect.type<Promise<unknown[]>>(podium.few({ name: 'test', count: 2, filter: { all: true, tags: ['a', 'b'] } }));
+expect.type<Promise<unknown[]>>(podium.few({ name: 'test', count: 2, tags: true }));
+expect.type<Promise<unknown[]>>(podium.few({ name: 'test', count: 2, clone: true }));
+expect.type<Promise<unknown[]>>(podium.few({ name: 'test', count: 2, spread: true }));
+
+expect.type<Promise<[a: number]>>(podium.few<[a: number]>({ name: 'test', count: 2 }));
+
+expect.error(podium.few());
+expect.error(podium.few(123));
+expect.error(podium.few('test'));
+expect.error(podium.few({ name: 'test' }));
+expect.error(podium.few({ name: 'test', unknown: true }));
 
 // removeListener()
 
