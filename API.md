@@ -3,7 +3,7 @@
 
 **podium** is an event emitter with support for tags, filters, channels, event update cloning,
 arguments spreading, and other features useful when building large scale applications.
-While node's native [`EventEmitter`](https://nodejs.org/dist/latest-v6.x/docs/api/events.html#events_class_eventemitter) is strictly focused on maximum performance,
+While node's native [`EventEmitter`](https://nodejs.org/docs/latest-v12.x/api/events.html#events_class_eventemitter) is strictly focused on maximum performance,
 it lacks many features that do not belong in the core implementation. **podium** is not restricted by
 node's performance requirement as it is designed for application layer needs where its overhead
 is largely insignificant as implementing these features will have similar cost on top of the native emitter.
@@ -332,14 +332,15 @@ podiumObject.emit('event1', 'emit 3'); // this wont call listener1
 ```
 
 
-## `new Podium(events)`
+## `new Podium(events, options)`
 
 Creates a new **podium** emitter where:
 - `events` - if present, the value is passed to [`podium.registerEvent()`](#podiumregistereventevents).
+- `options` - optional configuration options passed to [`podium.registerEvent()`](#podiumregistereventevents).
 
 Returns a `Podium` object.
 
-## `podium.registerEvent(events)`
+## `podium.registerEvent(events, options)`
 
 Register the specified events and their optional configuration. Events must be registered before
 they can be emitted or subscribed to. This is done to detect event name misspelling and invalid
@@ -364,9 +365,13 @@ event activities. The `events` argument can be:
     - `shared` - if `true`, the same event `name` can be registered multiple times where the second
       registration is ignored. **Note that if the registration config is changed between registrations,
       only the first configuration is used. Defaults to `false` (a duplicate registration will throw an
-      error).** For detailed examples of event parameters [see here](README.md#parameters)
+      error).** For detailed examples of event parameters [see here](#parameters)
 - a `Podium` object which is passed to [`podium.registerPodium()`](#podiumregisterpodiumpodiums).
 - an array containing any of the above.
+
+The `options` argument is an object with the following optional properties:
+- `validate` - if `false`, events are not validated. This is only allowed when the `events`
+               value is returned from `Podium.validate()`. **Defaults to `true`**
 
 ## `podium.registerPodium(podiums)`
 
@@ -433,6 +438,20 @@ Same as [`podium.on()`](#podiumoncriteria-listener).
 
 Same as calling [`podium.on()`](#podiumoncriteria-listener) with the `count` option set to `1`.
 
+## `await podium.once(criteria)`
+
+Subscribes to an event by returning a promise that resolves when the event is emitted. `criteria` can be specified
+in any format supported by [`podium.on()`](#podiumoncriteria-listener), except for the `count` option that is set to `1`.
+
+Return a promise that resolves when the event is emitted. The resolution value is an array of emitted arguments.
+
+## `podium.few(criteria)`
+
+Subscribes to an event by returning a promise that resolves when the event is emitted `count` times. `criteria` can only be specified
+in the object format supported by [`podium.on()`](#podiumoncriteria-listener) and the `count` option is required.
+
+Returns a promise that resolves when the event is emitted `count` times. The resolution value is an array where each item is an array of emitted arguments.
+
 ## `podium.removeListener(name, listener)`
 
 Removes all listeners subscribed to a given event name matching the provided listener method where:
@@ -454,3 +473,10 @@ Returns whether an event has any listeners subscribed where:
 - `name` - the event name **string**.
 
 Returns `true` if the event name has any listeners, otherwise `false`.
+
+## `Podium.validate(events)`
+
+Validates that events are declared in the correct format. Events can be declared
+in any of the formats supported by the [`podium.registerEvent()`](#podiumregistereventevents) method.
+When the declaration is valid, the array of events returned can be passed to the [`podium.registerEvent()`](#podiumregistereventevents)
+method with validations disabled, otherwise a validation error is thrown.

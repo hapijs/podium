@@ -6,8 +6,9 @@ declare class Podium {
      * Creates a new podium emitter.
      * 
      * @param events - If present, the value is passed to podium.registerEvent().
+     * @param options - optional configuration options passed to podium.registerEvent().
      */
-    constructor(events?: Podium.Event | Podium.Event[]);
+    constructor(events?: Podium.Event | Podium.Event[], options?: Podium.EventSettings);
 
     /**
      * Register the specified events and their optional configuration. Events must be registered 
@@ -15,8 +16,9 @@ declare class Podium {
      * and invalid event activities.
      * 
      * @param events - The event(s) to register.
+     * @param options - optional configuration options.
      */
-    registerEvent(events: Podium.Event | Podium.Event[]): void;
+    registerEvent(events: Podium.Event | Podium.Event[], options?: Podium.EventSettings): void;
 
     /**
      * Registers another emitter as an event source for the current emitter (any event update
@@ -82,14 +84,24 @@ declare class Podium {
     once<TArgs extends any[] = any[], Tcontext extends object = this>(criteria: string | Omit<Podium.CriteriaObject, 'count'>, listener: Podium.Listener<Tcontext, TArgs>, context?: Tcontext): this;
 
     /**
-     * Wait for a single event. The count option is fixed to 1.
+     * Subscribes to an event by returning a promise that resolves when the event is emitted.
      * 
      * @param criteria - The subscription criteria.
      *
      * @returns Promise with array of emitted parameters.
      */
-    once<TArgs extends any[] = unknown[], Tcontext extends void = void>(criteria: string | Omit<Podium.CriteriaObject, 'count'>): Promise<TArgs>;
-    once<TArgs extends any[] = any[], Tcontext extends void = void>(criteria: string | Omit<Podium.CriteriaObject, 'count'>): Promise<TArgs>;
+    once<TArgs extends any[] = unknown[]>(criteria: string | Omit<Podium.CriteriaObject, 'count'>): Promise<TArgs>;
+    once<TArgs extends any[] = any[]>(criteria: string | Omit<Podium.CriteriaObject, 'count'>): Promise<TArgs>;
+
+    /**
+     * Subscribes to an event by returning a promise that resolves when the event is emitted `count` times.
+     * 
+     * @param criteria - The subscription criteria.
+     *
+     * @returns Promise with array where each item is an array of emitted arguments.
+     */
+    few<TArgs extends any[] = unknown[]>(criteria: Podium.CriteriaObjectWithCount): Promise<TArgs>;
+    few<TArgs extends any[] = any[]>(criteria: Podium.CriteriaObjectWithCount): Promise<TArgs>;
 
     /**
      * Removes all listeners subscribed to a given event name matching the provided listener method.
@@ -198,6 +210,17 @@ declare namespace Podium {
 
     type Event = string | EventOptions | Podium;
 
+    export interface EventSettings {
+
+        /**
+         * If false, events are not validated. This is only allowed when the events
+         * value is returned from Podium.validate().
+         * 
+         * Defaults to true
+         */
+        readonly validate?: boolean;
+    }
+
     type Listener<TContext extends object = any, TArgs extends any[] = any[]> =
         (this: TContext, ...args: TArgs) => void | Promise<void>;
 
@@ -272,6 +295,14 @@ declare namespace Podium {
          * Defaults to the event registration option (which defaults to false).
          */
         readonly tags?: boolean;
+    }
+    
+    export interface CriteriaObjectWithCount extends CriteriaObject {
+        /**
+         * A positive non-zero integer indicating the number of times the listener can be called
+         * after which the subscription is automatically removed.
+         */
+         readonly count: number;
     }
 }
 
