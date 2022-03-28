@@ -619,6 +619,23 @@ describe('Podium', () => {
             emitter.emit('test', null);
             expect(handled).to.equal(1);
         });
+
+        it('is aliased by off()', () => {
+
+            const emitter = new Podium.Podium('test');
+            let handled = 0;
+            const handler = () => {
+
+                handled++;
+            };
+
+            emitter.addListener('test', handler);
+
+            emitter.emit('test', null);
+            emitter.off('test', handler);
+            emitter.emit('test', null);
+            expect(handled).to.equal(1);
+        });
     });
 
     describe('removeAllListeners()', () => {

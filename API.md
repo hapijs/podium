@@ -442,11 +442,15 @@ in the object format supported by [`podium.on()`](#podiumoncriteria-listener) an
 
 Returns a promise that resolves when the event is emitted `count` times. The resolution value is an array where each item is an array of emitted arguments.
 
-## `podium.removeListener(name, listener)`
+## `podium.off(name, listener)`
 
 Removes all listeners subscribed to a given event name matching the provided listener method where:
 - `name` - the event name **string**.
 - `listener` - the function reference provided when subscribed.
+
+## `podium.removeListener(name, listener)`
+
+Same as [`podium.off()`](#podiumoffname-listener).
 
 Returns a reference to the current emitter.
 
