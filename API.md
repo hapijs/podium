@@ -383,6 +383,13 @@ Emits an event update to all the subscribed listeners where:
         - `tags` - a tag string or array of tag strings.
 - `data` - the value emitted to the subscribers.
 
+## `await podium.gauge(criteria, data)`
+
+Behaves identically to `podium.emit()`, but also returns an array of the results of all the event listeners that run. The return value is that of `Promise.allSettled()`, where each item in the resulting array is `{ status: 'fulfilled', value }` in the case of a successful handler, or `{ status: 'rejected', reason }` in the case of a handler that throws.
+
+Please note that system errors such as a `TypeError` are not handled specially, and it's recommended to scrutinize any rejections using something like [bounce](https://hapi.dev/module/bounce/).
+
+
 ## `podium.on(criteria, listener, context)`
 
 Subscribe a handler to an event where:

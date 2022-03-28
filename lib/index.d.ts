@@ -29,6 +29,14 @@ export class Podium {
     emit(criteria: string | Podium.EmitCriteria, data?: any): void;
 
     /**
+     * Emits an event update to all the subscribed listeners and resolves an array of their results.
+
+     * @param criteria - The event update criteria.
+     * @param data - The value emitted to the subscribers.
+     */
+     gauge<T = unknown>(criteria: string | Podium.EmitCriteria, data?: any): Promise<PromiseSettledResult<T>[]>;
+
+    /**
      * Subscribe a handler to an event.
      *
      * @param criteria - The subscription criteria.

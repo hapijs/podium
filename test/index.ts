@@ -41,6 +41,22 @@ expect.error(podium.emit({ name: 123 }));
 expect.error(podium.emit({ name: 'test', channel: 123 }));
 expect.error(podium.emit({ name: 'test', tags: 123 }));
 
+// gauge()
+
+expect.type<Promise<PromiseSettledResult<unknown>[]>>(podium.gauge('test'));
+expect.type<Promise<PromiseSettledResult<string>[]>>(podium.gauge<string>('test'));
+expect.type<Promise<PromiseSettledResult<unknown>[]>>(podium.gauge('test', { data: true }));
+expect.type<Promise<PromiseSettledResult<unknown>[]>>(podium.gauge({ name: 'test', channel: 'a', tags: 'b' }, { data: true }));
+expect.type<Promise<PromiseSettledResult<unknown>[]>>(podium.gauge({ name: 'test', tags: ['b'] }));
+expect.type<Promise<PromiseSettledResult<unknown>[]>>(podium.gauge({ name: 'test', tags: { b: true } }));
+
+expect.error(podium.gauge());
+expect.error(podium.gauge(123));
+expect.error(podium.gauge({ channel: 'a' }));
+expect.error(podium.gauge({ name: 123 }));
+expect.error(podium.gauge({ name: 'test', channel: 123 }));
+expect.error(podium.gauge({ name: 'test', tags: 123 }));
+
 // on()
 
 expect.type<Podium>(podium.on('test', function () { this instanceof Podium; }));
