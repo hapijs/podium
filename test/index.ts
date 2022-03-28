@@ -1,4 +1,4 @@
-import * as Podium from '..';
+import { Podium } from '..';
 import * as Lab from '@hapi/lab';
 
 
@@ -8,38 +8,31 @@ const { expect } = Lab.types;
 
 expect.type<Podium>(new Podium());
 expect.type<Podium>(new Podium('test'));
-expect.type<Podium>(new Podium(['a', { name: 'b', channels: ['c'] }, new Podium()]));
+expect.type<Podium>(new Podium(['a', { name: 'b', channels: ['c'] }]));
 expect.type<Podium>(new Podium('test', { validate: true }));
+
+expect.error(new Podium(new Podium()));
 
 const podium = new Podium();
 
 // registerEvent()
 
 expect.type<void>(podium.registerEvent('test'));
-expect.type<void>(podium.registerEvent(['a', { name: 'b', channels: ['c'] }, new Podium()]));
+expect.type<void>(podium.registerEvent(['a', { name: 'b', channels: ['c'] }]));
 expect.type<void>(podium.registerEvent('c', { validate: true }))
-
 expect.error(podium.registerEvent());
+expect.error(podium.registerEvent(new Podium()));
 expect.error(podium.registerEvent(123));
 expect.error(podium.registerEvent([Symbol()]));
 expect.error(podium.registerEvent('d', { unknown: false }))
 
-// registerPodium()
-
-expect.type<void>(podium.registerPodium(new Podium()));
-expect.type<void>(podium.registerPodium([new Podium()]));
-
-expect.error(podium.registerPodium());
-expect.error(podium.registerPodium('test'));
-expect.error(podium.registerPodium([{ name: 'test' }]));
-
 // emit()
 
-expect.type<Promise<void>>(podium.emit('test'));
-expect.type<Promise<void>>(podium.emit('test', { data: true }));
-expect.type<Promise<void>>(podium.emit({ name: 'test', channel: 'a', tags: 'b' }, { data: true }));
-expect.type<Promise<void>>(podium.emit({ name: 'test', tags: ['b'] }));
-expect.type<Promise<void>>(podium.emit({ name: 'test', tags: { b: true } }));
+expect.type<void>(podium.emit('test'));
+expect.type<void>(podium.emit('test', { data: true }));
+expect.type<void>(podium.emit({ name: 'test', channel: 'a', tags: 'b' }, { data: true }));
+expect.type<void>(podium.emit({ name: 'test', tags: ['b'] }));
+expect.type<void>(podium.emit({ name: 'test', tags: { b: true } }));
 
 expect.error(podium.emit());
 expect.error(podium.emit(123));
@@ -82,7 +75,7 @@ expect.error(podium.on('test', function () { this.notOk; }, { ok: true }));
 
 expect.type<Podium>(podium.addListener('test', function () { this instanceof Podium; }));
 expect.type<Podium>(podium.addListener('test', function () { this.ok; }, { ok: true }));
-expect.type<Podium>(podium.addListener('test', function () { this.ok; }, { ok: true }));
+expect.type<Podium>(podium.addListener('test', () => true));
 expect.type<Podium>(podium.addListener<[a: string, b: number], { ok: boolean }>('test', function (a, b) {
 
     expect.type<boolean>(this.ok);

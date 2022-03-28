@@ -13,7 +13,7 @@ is largely insignificant as implementing these features will have similar cost o
 ```js
 const Podium = require('@hapi/podium');
 
-const emitter = new Podium()
+const emitter = new Podium.Podium()
 
 const context = { count: 0 }
 
@@ -59,16 +59,16 @@ emitter.hasListeners('event') // true
 emitter.removeAllListeners('event') // Removes all listeners subscribed to 'event'
 ```
 
-The above example uses podium's channel event parameter to restrict the event update to only the specified channel. 
+The above example uses podium's channel event parameter to restrict the event update to only the specified channel.
 
 First you register the event by calling the `registerEvent()` method. Here, you name the event `'event'` and give it channels `['ch1', 'ch2']`.
 
-Next you specify your listener handlers. These will be called when an event is updated. Here you make use of podium's listener context, data that you can bind to your listener handlers. 
+Next you specify your listener handlers. These will be called when an event is updated. Here you make use of podium's listener context, data that you can bind to your listener handlers.
 In this case, `handler1` will add 1 to count, which is specified as `{ count: 0 }`, while `handler2` will add 2.
 
 Next you call the `on()` method to subscribe a handler to an event. You use the same event name, but two different channels. `'ch1'` will use handler1 and `'ch2'` will use handler2.
 
-Lastly, you use `emit()` to emit and event update to the subscribers. 
+Lastly, you use `emit()` to emit and event update to the subscribers.
 
 
 ### <a name='parameters'></a> `Using different parameters`
@@ -86,7 +86,7 @@ Along with channels, podium allows you to specify other event parameters. Below 
 
 ```js
 const Podium = require('@hapi/podium');
-const podiumObject = new Podium();
+const podiumObject = new Podium.Podium();
 
 podiumObject.registerEvent([
     {
@@ -135,7 +135,7 @@ podiumObject.emit({
 
 ```js
 const Podium = require('@hapi/podium');
-const podiumObject = new Podium();
+const podiumObject = new Podium.Podium();
 
 podiumObject.registerEvent([
     {
@@ -193,7 +193,7 @@ console.log('after event2, ch1: ', arr);
 
 ```js
 const Podium = require('@hapi/podium');
-const podiumObject = new Podium();
+const podiumObject = new Podium.Podium();
 
 podiumObject.registerEvent([
     {
@@ -250,7 +250,7 @@ console.log('after event2, ch1: ', arr);
 
 ```js
 const Podium = require('@hapi/podium');
-const podiumObject = new Podium();
+const podiumObject = new Podium.Podium();
 
 podiumObject.registerEvent([
     {
@@ -287,7 +287,7 @@ podiumObject.emit({
 
 ```js
 const Podium = require('@hapi/podium');
-const emitter = new Podium('test');
+const emitter = new Podium.Podium('test');
 
 const updates = [];
 emitter.on('test', (data) => updates.push({ id: 1, data }));
@@ -366,21 +366,11 @@ event activities. The `events` argument can be:
       registration is ignored. **Note that if the registration config is changed between registrations,
       only the first configuration is used. Defaults to `false` (a duplicate registration will throw an
       error).** For detailed examples of event parameters [see here](#parameters)
-- a `Podium` object which is passed to [`podium.registerPodium()`](#podiumregisterpodiumpodiums).
 - an array containing any of the above.
 
 The `options` argument is an object with the following optional properties:
 - `validate` - if `false`, events are not validated. This is only allowed when the `events`
                value is returned from `Podium.validate()`. **Defaults to `true`**
-
-## `podium.registerPodium(podiums)`
-
-Registers another emitter as an event source for the current emitter (any event update emitted by the
-source emitter is passed to any subscriber of the current emitter) where:
-- `podiums` - a `Podium` object or an array of objects, each added as a source.
-
-Note that any events registered with a source emitter are automatically added to the current emitter.
-If the events are already registered, they are left as-is.
 
 ## `podium.emit(criteria, data)`
 

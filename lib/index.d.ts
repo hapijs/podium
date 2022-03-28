@@ -1,7 +1,7 @@
 /**
  * Node (semi) compatible event emitter with extra features.
  */
-declare class Podium {
+export class Podium {
     /**
      * Creates a new podium emitter.
      * 
@@ -21,26 +21,12 @@ declare class Podium {
     registerEvent(events: Podium.Event | Podium.Event[], options?: Podium.EventSettings): void;
 
     /**
-     * Registers another emitter as an event source for the current emitter (any event update
-     * emitted by the source emitter is passed to any subscriber of the current emitter).
-     * 
-     * Note that any events registered with a source emitter are automatically added to the current
-     * emitter. If the events are already registered, they are left as-is.
-     * 
-     * @param podiums - A Podium object or an array of objects, each added as a source.
-     */
-    registerPodium(podiums: Podium | Podium[]): void;
-
-    /**
      * Emits an event update to all the subscribed listeners.
 
      * @param criteria - The event update criteria.
      * @param data - The value emitted to the subscribers.
-     * 
-     * @returns Promise that resolves when all events has been processed. Any errors will cause an
-     * immediate rejection.
      */
-    emit(criteria: string | Podium.EmitCriteria, data?: any): Promise<void>;
+    emit(criteria: string | Podium.EmitCriteria, data?: any): void;
 
     /**
      * Subscribe a handler to an event.
@@ -208,7 +194,7 @@ declare namespace Podium {
         readonly shared?: boolean;
     }
 
-    type Event = string | EventOptions | Podium;
+    type Event = string | EventOptions;
 
     export interface EventSettings {
 
@@ -222,7 +208,7 @@ declare namespace Podium {
     }
 
     type Listener<TContext extends object = any, TArgs extends any[] = any[]> =
-        (this: TContext, ...args: TArgs) => void | Promise<void>;
+        (this: TContext, ...args: TArgs) => unknown;
 
     interface CriteriaFilterOptionsObject {
 
@@ -305,5 +291,3 @@ declare namespace Podium {
          readonly count: number;
     }
 }
-
-export = Podium;
