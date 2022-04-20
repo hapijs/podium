@@ -10,6 +10,6 @@ on:
 
 jobs:
   test:
-    uses: hapijs/.github/.github/workflows/ci-module.yml@workflow-min-node-version
+    uses: hapijs/.github/.github/workflows/ci-module.yml@master
     with:
       min-node-version: 14
