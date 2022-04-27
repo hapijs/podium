@@ -4,17 +4,17 @@
 export class Podium {
     /**
      * Creates a new podium emitter.
-     * 
+     *
      * @param events - If present, the value is passed to podium.registerEvent().
      * @param options - optional configuration options passed to podium.registerEvent().
      */
     constructor(events?: Podium.Event | Podium.Event[], options?: Podium.EventSettings);
 
     /**
-     * Register the specified events and their optional configuration. Events must be registered 
+     * Register the specified events and their optional configuration. Events must be registered
      * before they can be emitted or subscribed to. This is done to detect event name mispelling
      * and invalid event activities.
-     * 
+     *
      * @param events - The event(s) to register.
      * @param options - optional configuration options.
      */
@@ -29,8 +29,16 @@ export class Podium {
     emit(criteria: string | Podium.EmitCriteria, data?: any): void;
 
     /**
+     * Emits an event update to all the subscribed listeners and resolves an array of their results.
+
+     * @param criteria - The event update criteria.
+     * @param data - The value emitted to the subscribers.
+     */
+     gauge<T = unknown>(criteria: string | Podium.EmitCriteria, data?: any): Promise<PromiseSettledResult<T>[]>;
+
+    /**
      * Subscribe a handler to an event.
-     * 
+     *
      * @param criteria - The subscription criteria.
      * @param listener - The handler method set to receive event updates. The function signature
      *                   depends on the block, spread, and tags options.
@@ -56,9 +64,9 @@ export class Podium {
 
     /**
      * Same as podium.on() with the count option set to 1.
-     * 
+     *
      * Can also be called without an listener to wait for a single event.
-     * 
+     *
      * @param criteria - The subscription criteria.
      * @param listener - The handler method set to receive event updates. The function signature
      *                   depends on the block, spread, and tags options.
@@ -71,7 +79,7 @@ export class Podium {
 
     /**
      * Subscribes to an event by returning a promise that resolves when the event is emitted.
-     * 
+     *
      * @param criteria - The subscription criteria.
      *
      * @returns Promise with array of emitted parameters.
@@ -81,7 +89,7 @@ export class Podium {
 
     /**
      * Subscribes to an event by returning a promise that resolves when the event is emitted `count` times.
-     * 
+     *
      * @param criteria - The subscription criteria.
      *
      * @returns Promise with array where each item is an array of emitted arguments.
@@ -91,28 +99,38 @@ export class Podium {
 
     /**
      * Removes all listeners subscribed to a given event name matching the provided listener method.
-     * 
+     *
      * @param name - The event name string.
      * @param listener - The function reference provided when subscribed.
-     * 
+     *
+     * @returns A reference to the current emitter.
+     */
+     off(name: string, listener: Podium.Listener): this;
+
+    /**
+     * Removes all listeners subscribed to a given event name matching the provided listener method.
+     *
+     * @param name - The event name string.
+     * @param listener - The function reference provided when subscribed.
+     *
      * @returns A reference to the current emitter.
      */
     removeListener(name: string, listener: Podium.Listener): this;
 
     /**
      * Removes all listeners subscribed to a given event name.
-     * 
+     *
      * @param name - The event name string.
-     * 
+     *
      * @returns A reference to the current emitter.
      */
     removeAllListeners(name: string): this;
 
     /**
      * Returns whether an event has any listeners subscribed.
-     * 
+     *
      * @param name  the event name string.
-     * 
+     *
      * @returns true if the event name has any listeners, otherwise false.
      */
     hasListeners(name: string): boolean;
@@ -120,7 +138,7 @@ export class Podium {
 
 declare namespace Podium {
 
-    export interface EmitCriteria { 
+    export interface EmitCriteria {
 
         /**
          * Event name.
@@ -147,7 +165,7 @@ declare namespace Podium {
 
         /**
          * A string or array of strings specifying the event channels available.
-         * 
+         *
          * Defaults to no channel restrictions - Event updates can specify a channel or not.
          */
         readonly channels?: string | string[];
@@ -155,7 +173,7 @@ declare namespace Podium {
         /**
          * Set to make podium.emit() clone the data object passed to it, before it is passed to the
          * listeners (unless an override specified by each listener).
-         * 
+         *
          * Defaults to false - Data is passed as-is.
          */
         readonly clone?: boolean;
@@ -164,9 +182,9 @@ declare namespace Podium {
          * Set to require the data object passed to podium.emit() to be an array, and make the
          * listener method called with each array element passed as a separate argument (unless an
          * override specified by each listener).
-         * 
+         *
          * This should only be used when the emitted data structure is known and predictable.
-         * 
+         *
          * Defaults to false - Data is emitted as a single argument regardless of its type.
          */
         readonly spread?: boolean;
@@ -175,9 +193,9 @@ declare namespace Podium {
          * Set to make any tags in the critieria object passed to podium.emit() map to an object
          * (where each tag string is the key and the value is true) which is appended to the emitted
          * arguments list at the end.
-         * 
+         *
          * A configuration override can be set by each listener.
-         * 
+         *
          * Defaults to false.
          */
         readonly tags?: boolean;
@@ -185,10 +203,10 @@ declare namespace Podium {
         /**
          * Set to allow the same event name to be registered multiple times, ignoring all but the
          * first.
-         * 
+         *
          * Note that if the registration config is changed between registrations, only the first
          * configuration is used.
-         * 
+         *
          * Defaults to false - A duplicate registration will throw an error.
          */
         readonly shared?: boolean;
@@ -201,7 +219,7 @@ declare namespace Podium {
         /**
          * If false, events are not validated. This is only allowed when the events
          * value is returned from Podium.validate().
-         * 
+         *
          * Defaults to true
          */
         readonly validate?: boolean;
@@ -219,7 +237,7 @@ declare namespace Podium {
 
         /**
          * Require all tags to be present for the event update to match the subscription.
-         * 
+         *
          * Default false - Require at least one matching tag.
          */
         readonly all?: boolean;
@@ -234,11 +252,11 @@ declare namespace Podium {
 
         /**
          * The event channels to subscribe to.
-         * 
+         *
          * If the event registration specified a list of allowed channels, the channels array must
          * match the allowed channels. If channels are specified, event updates without any channel
          * designation will not be included in the subscription.
-         * 
+         *
          * Defaults to no channels filter.
          */
         readonly channels?: string | string[];
@@ -246,7 +264,7 @@ declare namespace Podium {
         /**
          * Set to clone the data object passed to podium.emit() before it is passed to the listener
          * method.
-         * 
+         *
          * Defaults to the event registration option (which defaults to false).
          */
         readonly clone?: boolean;
@@ -254,9 +272,9 @@ declare namespace Podium {
         /**
          * A positive non-zero integer indicating the number of times the listener can be called
          * after which the subscription is automatically removed.
-         * 
+         *
          * Does nothing when calling once(), where it will use the value 1.
-         * 
+         *
          * Defaults to no limit.
          */
         readonly count?: number;
@@ -268,21 +286,21 @@ declare namespace Podium {
 
         /**
          * Override the value of spread from the event registraiont when the listener is called.
-         * 
+         *
          * This should only be used when the emitted data structure is known and predictable.
-         * 
+         *
          * Defaults to the event registration option (which defaults to false).
          */
         readonly spread?: boolean;
 
         /**
          * Override the value of tags from the event registraiont when the listener is called.
-         * 
+         *
          * Defaults to the event registration option (which defaults to false).
          */
         readonly tags?: boolean;
     }
-    
+
     export interface CriteriaObjectWithCount extends CriteriaObject {
         /**
          * A positive non-zero integer indicating the number of times the listener can be called

@@ -241,7 +241,7 @@ describe('Podium', () => {
             expect(data).to.equal(update);
         });
 
-        it('spreads data', () => {
+        it('spreads data', { plan: 1 }, () => {
 
             const emitter = new Podium.Podium({ name: 'test', spread: true });
             emitter.on('test', (a, b, c) => {
@@ -252,7 +252,7 @@ describe('Podium', () => {
             emitter.emit('test', [1, 2, 3]);
         });
 
-        it('spreads data (function)', () => {
+        it('spreads data (function)', { plan: 1 }, () => {
 
             const emitter = new Podium.Podium({ name: 'test', spread: true });
             emitter.on('test', (a, b, c) => {
@@ -271,7 +271,7 @@ describe('Podium', () => {
             expect(await once).to.equal([1, 2, 3]);
         });
 
-        it('adds tags', () => {
+        it('adds tags', { plan: 1 }, () => {
 
             const emitter = new Podium.Podium({ name: 'test', tags: true });
             emitter.on('test', (data, tags) => {
@@ -282,7 +282,7 @@ describe('Podium', () => {
             emitter.emit({ name: 'test', tags: ['a', 'b'] }, [1, 2, 3]);
         });
 
-        it('adds tags (spread)', () => {
+        it('adds tags (spread)', { plan: 2 }, () => {
 
             const emitter = new Podium.Podium({ name: 'test', tags: true, spread: true });
             emitter.on('test', (a, b, c, tags, ...rest) => {
@@ -294,7 +294,7 @@ describe('Podium', () => {
             emitter.emit({ name: 'test', tags: ['a', 'b'] }, [1, 2, 3]);
         });
 
-        it('adds tags for multiple listeners (spread)', () => {
+        it('adds tags for multiple listeners (spread)', { plan: 4 }, () => {
 
             const emitter = new Podium.Podium({ name: 'test', tags: true, spread: true });
             emitter.on('test', (a, b, c, tags, ...rest) => {
@@ -311,7 +311,7 @@ describe('Podium', () => {
             emitter.emit({ name: 'test', tags: ['a', 'b'] }, [1, 2, 3]);
         });
 
-        it('send no tags on channel with tags enabled', () => {
+        it('send no tags on channel with tags enabled', { plan: 1 }, () => {
 
             const emitter = new Podium.Podium({ name: 'test', tags: true });
             emitter.on('test', (data, tags) => {
@@ -370,6 +370,259 @@ describe('Podium', () => {
             emitter.on('a', handler1);
             expect(() => emitter.emit('a', 1)).to.throw('oops');
             expect(updates).to.equal([1, 2, 1, 2, 1]);
+        });
+    });
+
+    describe('gauge()', () => {
+
+        it('returns the result of all handlers subscribed to an event in order', async () => {
+
+            const emitter = new Podium.Podium('test');
+
+            emitter.on('test', () => {
+
+                return 'a';
+            });
+
+            emitter.on('test', async () => {
+
+                await Hoek.wait();
+
+                return 'b';
+            });
+
+            emitter.on('test', () => {
+
+                return 'c';
+            });
+
+            const results = await emitter.gauge('test');
+            expect(results).to.equal([
+                { status: 'fulfilled', value: 'a' },
+                { status: 'fulfilled', value: 'b' },
+                { status: 'fulfilled', value: 'c' }
+            ]);
+        });
+
+        it('returns the result of failed handlers', async () => {
+
+            const emitter = new Podium.Podium('test');
+
+            emitter.on('test', () => {
+
+                throw new Error('a');
+            });
+
+            emitter.on('test', async () => {
+
+                await Hoek.wait();
+
+                throw new Error('b');
+            });
+
+            emitter.on('test', () => {
+
+                return 'c';
+            });
+
+            const results = await emitter.gauge('test', 'x');
+            expect(results).to.equal([
+                { status: 'rejected', reason: new Error('a') },
+                { status: 'rejected', reason: new Error('b') },
+                { status: 'fulfilled', value: 'c' }
+            ]);
+        });
+
+        // Tests below are adapted from emit()
+
+        it('returns callbacks in order added', () => {
+
+            const emitter = new Podium.Podium(['a', 'b']);
+
+            const updates = [];
+
+            const aHandler = (data) => {
+
+                updates.push({ a: data, id: 1 });
+            };
+
+            emitter.on({ name: 'a' }, aHandler);
+
+            const bHandler = (data) => {
+
+                updates.push({ b: data, id: 1 });
+            };
+
+            emitter.on('b', bHandler);
+
+            emitter.gauge('a', 1);
+            updates.push('a done');
+            emitter.gauge('b', 1);
+            expect(updates).to.equal([{ a: 1, id: 1 }, 'a done', { b: 1, id: 1 }]);
+        });
+
+        it('generates data once when function', () => {
+
+            let count = 0;
+            const update = () => {
+
+                ++count;
+                return { a: 1 };
+            };
+
+            const emitter = new Podium.Podium({ name: 'test' });
+
+            let received = 0;
+            emitter.on({ name: 'test', filter: 'a' }, (data) => {
+
+                ++received;
+                expect(data).to.equal({ a: 1 });
+            });
+
+            emitter.on({ name: 'test', filter: 'a' }, (data) => {
+
+                ++received;
+                expect(data).to.equal({ a: 1 });
+            });
+
+            emitter.gauge({ name: 'test', tags: ['a'] }, update);
+            emitter.gauge({ name: 'test', tags: ['b'] }, update);
+
+            expect(received).to.equal(2);
+            expect(count).to.equal(1);
+        });
+
+        it('generates function data', () => {
+
+            const inner = () => 5;
+            let count = 0;
+            const update = () => {
+
+                ++count;
+                return inner;
+            };
+
+            const emitter = new Podium.Podium({ name: 'test' });
+
+            let received = 0;
+            const handler = (data) => {
+
+                ++received;
+                expect(data).to.equal(inner);
+            };
+
+            emitter.on('test', handler);
+            emitter.on('test', handler);
+
+            emitter.gauge('test', update);
+
+            expect(count).to.equal(1);
+            expect(received).to.equal(2);
+        });
+
+        it('clones data for every handler', async () => {
+
+            const update = { a: 1 };
+
+            const emitter = new Podium.Podium({ name: 'test', clone: true });
+            const once = emitter.once('test');
+
+            emitter.gauge('test', update);
+
+            const [data] = await once;
+            expect(data).to.not.shallow.equal(update);
+            expect(data).to.equal(update);
+        });
+
+        it('spreads data', { plan: 1 }, () => {
+
+            const emitter = new Podium.Podium({ name: 'test', spread: true });
+            emitter.on('test', (a, b, c) => {
+
+                expect({ a, b, c }).to.equal({ a: 1, b: 2, c: 3 });
+            });
+
+            emitter.gauge('test', [1, 2, 3]);
+        });
+
+        it('spreads data (function)', { plan: 1 }, () => {
+
+            const emitter = new Podium.Podium({ name: 'test', spread: true });
+            emitter.on('test', (a, b, c) => {
+
+                expect({ a, b, c }).to.equal({ a: 1, b: 2, c: 3 });
+            });
+
+            emitter.gauge('test', () => [1, 2, 3]);
+        });
+
+        it('overrides spread data on once with promise', async () => {
+
+            const emitter = new Podium.Podium({ name: 'test', spread: true });
+            const once = emitter.once('test');
+            emitter.gauge('test', [1, 2, 3]);
+            expect(await once).to.equal([1, 2, 3]);
+        });
+
+        it('adds tags', { plan: 1 }, () => {
+
+            const emitter = new Podium.Podium({ name: 'test', tags: true });
+            emitter.on('test', (data, tags) => {
+
+                expect({ data, tags }).to.equal({ data: [1, 2, 3], tags: { a: true, b: true } });
+            });
+
+            emitter.gauge({ name: 'test', tags: ['a', 'b'] }, [1, 2, 3]);
+        });
+
+        it('adds tags (spread)', { plan: 2 }, () => {
+
+            const emitter = new Podium.Podium({ name: 'test', tags: true, spread: true });
+            emitter.on('test', (a, b, c, tags, ...rest) => {
+
+                expect({ a, b, c, tags }).to.equal({ a: 1, b: 2, c: 3, tags: { a: true, b: true } });
+                expect(rest).to.have.length(0);
+            });
+
+            emitter.gauge({ name: 'test', tags: ['a', 'b'] }, [1, 2, 3]);
+        });
+
+        it('adds tags for multiple listeners (spread)', { plan: 4 }, () => {
+
+            const emitter = new Podium.Podium({ name: 'test', tags: true, spread: true });
+            emitter.on('test', (a, b, c, tags, ...rest) => {
+
+                expect({ a, b, c, tags }).to.equal({ a: 1, b: 2, c: 3, tags: { a: true, b: true } });
+                expect(rest).to.have.length(0);
+            });
+            emitter.on('test', (a, b, c, tags, ...rest) => {
+
+                expect({ a, b, c, tags }).to.equal({ a: 1, b: 2, c: 3, tags: { a: true, b: true } });
+                expect(rest).to.have.length(0);
+            });
+
+            emitter.gauge({ name: 'test', tags: ['a', 'b'] }, [1, 2, 3]);
+        });
+
+        it('send no tags on channel with tags enabled', () => {
+
+            const emitter = new Podium.Podium({ name: 'test', tags: true });
+            emitter.on('test', (data, tags) => {
+
+                expect({ data, tags }).to.equal({ data: [1, 2, 3], tags: undefined });
+            });
+
+            emitter.gauge({ name: 'test' }, [1, 2, 3]);
+        });
+
+        it('errors on unknown channel', async () => {
+
+            const emitter = new Podium.Podium({ name: 'test', channels: ['a', 'b'] });
+            emitter.on('test', Hoek.ignore);
+
+            await expect(emitter.gauge('test')).to.not.reject();
+            await expect(emitter.gauge({ name: 'test', channel: 'a' })).to.not.reject();
+            await expect(emitter.gauge({ name: 'test', channel: 'c' })).to.reject('Unknown c channel');
         });
     });
 
@@ -616,6 +869,23 @@ describe('Podium', () => {
 
             emitter.emit('test', null);
             emitter.removeListener('test', handler);
+            emitter.emit('test', null);
+            expect(handled).to.equal(1);
+        });
+
+        it('is aliased by off()', () => {
+
+            const emitter = new Podium.Podium('test');
+            let handled = 0;
+            const handler = () => {
+
+                handled++;
+            };
+
+            emitter.addListener('test', handler);
+
+            emitter.emit('test', null);
+            emitter.off('test', handler);
             emitter.emit('test', null);
             expect(handled).to.equal(1);
         });

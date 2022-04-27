@@ -350,15 +350,15 @@ event activities. The `events` argument can be:
     - `name` - the event name **string (required)**.
     - `channels` - a **string** or **array of strings** specifying the event channels available. **Defaults
        to no channel restrictions (event updates can specify a channel or not).**
-    - `clone` - if `true`, the `data` object passed to [`podium.emit()`](#podiumemitcriteria-data-callback)
+    - `clone` - if `true`, the `data` object passed to [`podium.emit()`](#podiumemitcriteria-data)
         is cloned before it is passed to the listeners (unless an override specified by each listener).
         **Defaults to `false` (`data` is passed as-is).**
-    - `spread` - if `true`, the `data` object passed to [`podium.emit()`](#podiumemitcriteria-data-callback)
+    - `spread` - if `true`, the `data` object passed to [`podium.emit()`](#podiumemitcriteria-data)
         **must be an array** and the `listener` method is called with each array element passed as a separate
         argument (unless an override specified by each listener). **This should only be used when the emitted
         data structure is known and predictable.**
         **Defaults to `false` (`data` is emitted as a single argument regardless of its type).**
-    - `tags` - if `true` and the `criteria` object passed to [`podium.emit()`](#podiumemitcriteria-data-callback)
+    - `tags` - if `true` and the `criteria` object passed to [`podium.emit()`](#podiumemitcriteria-data)
         includes `tags`, the tags are mapped to an object (where each tag string is the key and
         the value is `true`) which is appended to the arguments list at the end. A configuration override can be set by each
         listener. **Defaults to `false`.**
@@ -383,6 +383,13 @@ Emits an event update to all the subscribed listeners where:
         - `tags` - a tag string or array of tag strings.
 - `data` - the value emitted to the subscribers.
 
+## `await podium.gauge(criteria, data)`
+
+Behaves identically to `podium.emit()`, but also returns an array of the results of all the event listeners that run. The return value is that of `Promise.allSettled()`, where each item in the resulting array is `{ status: 'fulfilled', value }` in the case of a successful handler, or `{ status: 'rejected', reason }` in the case of a handler that throws.
+
+Please note that system errors such as a `TypeError` are not handled specially, and it's recommended to scrutinize any rejections using something like [bounce](https://hapi.dev/module/bounce/).
+
+
 ## `podium.on(criteria, listener, context)`
 
 Subscribe a handler to an event where:
@@ -395,7 +402,7 @@ Subscribe a handler to an event where:
           match the allowed channels. If `channels` are specified, event updates without any
           channel designation will not be included in the subscription. **Defaults to no channels
           filter.**
-        - `clone` - if `true`, the `data` object passed to [`podium.emit()`](#podiumemitcriteria-data-callback)
+        - `clone` - if `true`, the `data` object passed to [`podium.emit()`](#podiumemitcriteria-data)
            is cloned before it is passed to the `listener` method. **Defaults to the event
            registration option (which defaults to `false`).**
         - `count` - a positive **integer** indicating the number of times the `listener` can be called
@@ -408,11 +415,11 @@ Subscribe a handler to an event where:
                 - `tags` - a tag **string** or **array** of tag **strings**.
                 - `all` - if `true`, all `tags` must be present for the event update to match the
                   subscription. **Defaults to `false` (at least one matching tag).**
-        - `spread` - if `true`, and the `data` object passed to [`podium.emit()`](#podiumemitcriteria-data-callback)
+        - `spread` - if `true`, and the `data` object passed to [`podium.emit()`](#podiumemitcriteria-data)
           is an **array**, the `listener` method is called with each **array element** passed as a separate
           argument. **This should only be used when the emitted data structure is known and predictable.
           Defaults to the event registration option (which defaults to `false`).**
-        - `tags` - if `true` and the `criteria` object passed to [`podium.emit()`](#podiumemitcriteria-data-callback)
+        - `tags` - if `true` and the `criteria` object passed to [`podium.emit()`](#podiumemitcriteria-data)
           includes `tags`, the tags are mapped to an object (where each tag string is the key and
           the value is `true`) which is appended to the arguments list at the end. **Defaults to the event registration option
           (which defaults to `false`).**
@@ -422,31 +429,35 @@ Subscribe a handler to an event where:
 
 ## `podium.addListener(criteria, listener, context)`
 
-Same as [`podium.on()`](#podiumoncriteria-listener).
+Same as [`podium.on()`](#podiumoncriteria-listener-context).
 
 ## `podium.once(criteria, listener, context)`
 
-Same as calling [`podium.on()`](#podiumoncriteria-listener) with the `count` option set to `1`.
+Same as calling [`podium.on()`](#podiumoncriteria-listener-context) with the `count` option set to `1`.
 
 ## `await podium.once(criteria)`
 
 Subscribes to an event by returning a promise that resolves when the event is emitted. `criteria` can be specified
-in any format supported by [`podium.on()`](#podiumoncriteria-listener), except for the `count` option that is set to `1`.
+in any format supported by [`podium.on()`](#podiumoncriteria-listener-context), except for the `count` option that is set to `1`.
 
 Return a promise that resolves when the event is emitted. The resolution value is an array of emitted arguments.
 
 ## `podium.few(criteria)`
 
 Subscribes to an event by returning a promise that resolves when the event is emitted `count` times. `criteria` can only be specified
-in the object format supported by [`podium.on()`](#podiumoncriteria-listener) and the `count` option is required.
+in the object format supported by [`podium.on()`](#podiumoncriteria-listener-context) and the `count` option is required.
 
 Returns a promise that resolves when the event is emitted `count` times. The resolution value is an array where each item is an array of emitted arguments.
 
-## `podium.removeListener(name, listener)`
+## `podium.off(name, listener)`
 
 Removes all listeners subscribed to a given event name matching the provided listener method where:
 - `name` - the event name **string**.
 - `listener` - the function reference provided when subscribed.
+
+## `podium.removeListener(name, listener)`
+
+Same as [`podium.off()`](#podiumoffname-listener).
 
 Returns a reference to the current emitter.
 
