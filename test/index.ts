@@ -1,7 +1,6 @@
 import { Podium } from '..';
 import * as Lab from '@hapi/lab';
 
-
 const { expect } = Lab.types;
 
 // Podium()
@@ -176,22 +175,26 @@ expect.error(podium.hasListeners(123));
 
 // Allows custom events in a subclass declaration
 
-type TestListener = (a: string, b: number) => void;
-
-declare class MyPodium extends Podium {
-
-    on(criteria: 'test', listener: TestListener): this;
-    once(criteria: 'test', listener: TestListener): this;
-    once(criteria: 'test'): Promise<Parameters<TestListener>>;
+interface MyPodiumEvents {
+    test: (a: string, b: number) => void;
 }
 
-const mypodium = podium as MyPodium;
+const mypodium = new Podium<MyPodiumEvents>(['test']);
 
-expect.type<MyPodium>(mypodium.on('test', function (a, b) {
+expect.type<Podium<MyPodiumEvents>>(mypodium.on('test', function (a, b) {
 
     expect.type<string>(a);
     expect.type<number>(b);
 }));
 expect.type<Promise<[a: string, b: number]>>(mypodium.once('test'));
+expect.type<void>(mypodium.emit('test', ['a', 3]))
 
 expect.error(mypodium.on('test', function (a: number) { }));
+expect.error(mypodium.on('test2', function () { }));
+expect.error(mypodium.emit('test', 'a'))
+expect.error(mypodium.emit('test', ['a']))
+expect.error(mypodium.emit('test', [3]))
+expect.error(mypodium.emit('test', ['a', 'b']))
+
+expect.error(new Podium<MyPodiumEvents>('test2'));
+expect.error(new Podium<MyPodiumEvents>(['test2']));
