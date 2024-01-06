@@ -1,5 +1,5 @@
 {
-  "name": "@commercial/podium",
+  "name": "podium",
   "description": "Node compatible event emitter with extra features",
   "version": "1.4.0",
   "repository": "git://github.com/hapijs/podium",
@@ -12,9 +12,9 @@
     "event"
   ],
   "dependencies": {
-    "@commercial/hoek": "4.x.x",
-    "@commercial/items": "2.x.x",
-    "@commercial/joi": "12.x.x"
+    "hoek": "4.x.x",
+    "items": "2.x.x",
+    "joi": "12.x.x"
   },
   "devDependencies": {
     "code": "4.x.x",

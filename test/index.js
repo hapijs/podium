@@ -1,7 +1,7 @@
 'use strict';
 
 const Code = require('code');
-const Hoek = require('@commercial/hoek');
+const Hoek = require('hoek');
 const Lab = require('lab');
 const Podium = require('..');
 
