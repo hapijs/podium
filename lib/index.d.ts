@@ -169,12 +169,12 @@ declare namespace Podium {
         /**
          * Channel name.
          */
-        readonly channel?: string;
+        readonly channel?: string | undefined;
 
         /**
          * The tags to apply.
          */
-        readonly tags?: string | string[] | { [tag: string]: boolean };
+        readonly tags?: string | string[] | { [tag: string]: boolean } | undefined;
     }
 
     export type EmitCriteria<TName extends EventName> = EmitCriteriaInterface<TName> | TName
@@ -191,7 +191,7 @@ declare namespace Podium {
          *
          * Defaults to no channel restrictions - Event updates can specify a channel or not.
          */
-        readonly channels?: string | string[];
+        readonly channels?: string | string[] | undefined;
 
         /**
          * Set to make podium.emit() clone the data object passed to it, before it is passed to the
@@ -199,7 +199,7 @@ declare namespace Podium {
          *
          * Defaults to false - Data is passed as-is.
          */
-        readonly clone?: boolean;
+        readonly clone?: boolean | undefined;
 
         /**
          * Set to require the data object passed to podium.emit() to be an array, and make the
@@ -210,7 +210,7 @@ declare namespace Podium {
          *
          * Defaults to false - Data is emitted as a single argument regardless of its type.
          */
-        readonly spread?: boolean;
+        readonly spread?: boolean | undefined;
 
         /**
          * Set to make any tags in the critieria object passed to podium.emit() map to an object
@@ -221,7 +221,7 @@ declare namespace Podium {
          *
          * Defaults to false.
          */
-        readonly tags?: boolean;
+        readonly tags?: boolean | undefined;
 
         /**
          * Set to allow the same event name to be registered multiple times, ignoring all but the
@@ -232,7 +232,7 @@ declare namespace Podium {
          *
          * Defaults to false - A duplicate registration will throw an error.
          */
-        readonly shared?: boolean;
+        readonly shared?: boolean | undefined;
     }
 
     type EventOptions<TName extends EventName> = EventOptionsInterface<TName> | TName
@@ -247,7 +247,7 @@ declare namespace Podium {
          *
          * Defaults to true
          */
-        readonly validate?: boolean;
+        readonly validate?: boolean | undefined;
     }
 
     type Listener<TContext extends object = any, TArgs extends any[] = any[]> =
@@ -258,14 +258,14 @@ declare namespace Podium {
         /**
          * A tag string or array of tag strings.
          */
-        readonly tags?: string | string[];
+        readonly tags?: string | string[] | undefined;
 
         /**
          * Require all tags to be present for the event update to match the subscription.
          *
          * Default false - Require at least one matching tag.
          */
-        readonly all?: boolean;
+        readonly all?: boolean | undefined;
     }
 
     interface CriteriaInterface<TName extends EventName> {
@@ -284,7 +284,7 @@ declare namespace Podium {
          *
          * Defaults to no channels filter.
          */
-        readonly channels?: string | string[];
+        readonly channels?: string | string[] | undefined;
 
         /**
          * Set to clone the data object passed to podium.emit() before it is passed to the listener
@@ -292,7 +292,7 @@ declare namespace Podium {
          *
          * Defaults to the event registration option (which defaults to false).
          */
-        readonly clone?: boolean;
+        readonly clone?: boolean | undefined;
 
         /**
          * A positive non-zero integer indicating the number of times the listener can be called
@@ -302,12 +302,12 @@ declare namespace Podium {
          *
          * Defaults to no limit.
          */
-        readonly count?: number;
+        readonly count?: number | undefined;
 
         /**
          * The event tags (if present) to subscribe to.
          */
-        readonly filter?: string | string[] | CriteriaFilterOptionsObject;
+        readonly filter?: string | string[] | CriteriaFilterOptionsObject | undefined;
 
         /**
          * Override the value of spread from the event registraiont when the listener is called.
@@ -316,14 +316,14 @@ declare namespace Podium {
          *
          * Defaults to the event registration option (which defaults to false).
          */
-        readonly spread?: boolean;
+        readonly spread?: boolean | undefined;
 
         /**
          * Override the value of tags from the event registraiont when the listener is called.
          *
          * Defaults to the event registration option (which defaults to false).
          */
-        readonly tags?: boolean;
+        readonly tags?: boolean | undefined;
     }
 
     export type Criteria<TName extends EventName = string> = CriteriaInterface<TName> | TName
