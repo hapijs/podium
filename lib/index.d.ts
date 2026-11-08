@@ -8,11 +8,15 @@ type EventListenerParameters<Events> = Events[keyof Events] extends (...args: an
   : never
 ;
 
-type EmitData<Events> = IfUndefinedElse<Events, any, EventListenerParameters<Events>>;
+type EmitDataForParams<TParams extends any[]> = TParams extends [infer Single]
+  ? Single | [Single]
+  : TParams;
 
-type EventListener<Events, TArgs extends unknown[], TContext extends object> = Podium.Listener<
+type EmitData<Events> = IfUndefinedElse<Events, any, EmitDataForParams<EventListenerParameters<Events>>>;
+
+type EventListener<Events, TArgs, TContext extends object> = Podium.Listener<
   TContext,
-  IfUndefinedElse<Events, TArgs, EventListenerParameters<Events>>
+  IfUndefinedElse<Events, TArgs extends any[] ? TArgs : [TArgs], EventListenerParameters<Events>>
 >;
 
 type WithRequiredProperty<Type, Key extends keyof Type> = Type & {
@@ -67,7 +71,7 @@ export class Podium<Events = undefined> {
      *
      * @returns A reference to the current emitter.
      */
-    on<TArgs extends any[] = unknown[], Tcontext extends object = this>
+    on<TArgs = unknown[], Tcontext extends object = this>
         (criteria: Podium.Criteria<EventNames<Events>>, listener: EventListener<Events, TArgs, Tcontext>, context?: Tcontext): this
 
     /**
@@ -80,7 +84,7 @@ export class Podium<Events = undefined> {
      *
      * @returns A reference to the current emitter.
      */
-    addListener<TArgs extends any[] = unknown[], Tcontext extends object = this>
+    addListener<TArgs = unknown[], Tcontext extends object = this>
         (criteria: Podium.Criteria<EventNames<Events>>, listener: EventListener<Events, TArgs, Tcontext>, context?: Tcontext): this;
 
     /**
@@ -95,7 +99,7 @@ export class Podium<Events = undefined> {
      *
      * @returns A reference to the current emitter.
      */
-    once<TArgs extends any[] = unknown[], Tcontext extends object = this>
+    once<TArgs = unknown[], Tcontext extends object = this>
         (criteria: Podium.OnceCriteria<EventNames<Events>>, listener: EventListener<Events, TArgs, Tcontext>, context?: Tcontext): this;
 
     /**
