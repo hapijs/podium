@@ -198,3 +198,33 @@ expect.error(mypodium.emit('test', ['a', 'b']))
 
 expect.error(new Podium<MyPodiumEvents>('test2'));
 expect.error(new Podium<MyPodiumEvents>(['test2']));
+
+// Allows emitting single object without array wrapping
+
+interface ChangeEvent {
+    table: string;
+    change: string;
+}
+
+interface SingleObjectEvents {
+    change: (data: ChangeEvent) => void;
+}
+
+const singleEventPodium = new Podium<SingleObjectEvents>(['change']);
+
+expect.type<void>(singleEventPodium.emit('change', { table: 'foo', change: 'bar' }));
+expect.type<void>(singleEventPodium.emit('change', [{ table: 'foo', change: 'bar' }]));
+
+expect.type<Podium<SingleObjectEvents>>(singleEventPodium.on<ChangeEvent>({ name: 'change' }, (event) => {
+
+    expect.type<string>(event.table);
+    expect.type<string>(event.change);
+}));
+
+expect.type<Podium<SingleObjectEvents>>(singleEventPodium.on('change', (event) => {
+
+    expect.type<ChangeEvent>(event);
+}));
+
+expect.error(singleEventPodium.emit('change', { table: 'foo' }));
+expect.error(singleEventPodium.emit('change', 123));
